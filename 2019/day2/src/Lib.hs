@@ -41,7 +41,7 @@ instParser =
 updatePuzz :: (Int -> Int -> Int) -> Int -> Int -> Int -> Puzzle -> Puzzle
 updatePuzz f reg1 reg2 out puzz =
   let
-    newValue = trace (show reg1) $ trace (show reg2) $ f (puzz !! reg1) (puzz !! reg2)
+    newValue = f (puzz !! reg1) (puzz !! reg2)
     newPuzz =
       case out of
         0 ->
@@ -49,8 +49,9 @@ updatePuzz f reg1 reg2 out puzz =
         n ->
           take n puzz ++ [newValue] ++ drop (n + 1) puzz
   in
-    trace ("New puzzle: " ++ show newPuzz) newPuzz
+    newPuzz
 
+-- debug left in because I don't feel like returning Eithers
 interpret :: Puzzle -> Instruction -> Puzzle
 interpret puzz Halt = puzz
 interpret puzz (Add reg1 reg2 out) =
@@ -60,6 +61,7 @@ interpret puzz (Multiply reg1 reg2 out) =
 interpret puzz (Invalid _) =
   trace "Really shouldn't be here -- should halt before having to interpret any invalid commands" puzz
 
+-- debug left in because I don't feel like returning Eithers
 solve :: Puzzle -> [Instruction] -> Puzzle
 solve puzz [] = trace "Really should have halted before exhausting the instruction list" puzz
 solve puzz (Halt:_) = puzz

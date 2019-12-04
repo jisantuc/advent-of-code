@@ -1,7 +1,7 @@
 module Main where
 
-import           Data.Attoparsec.Char8
-import qualified Data.ByteString       as BS
+import           Data.Attoparsec.ByteString.Char8
+import qualified Data.ByteString                  as BS
 
 import           Lib
 
