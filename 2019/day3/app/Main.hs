@@ -19,13 +19,17 @@ main = do
     Left err -> error err
     Right wires ->
       let histories = interpretInstructions Empty <$> wires
+          history1 : history2 : [] = histories
+          signalNoise' = signalNoise history1 history2
           pointSets = toSet <$> histories
           sharedPoints = foldl' Set.intersection (head pointSets) pointSets
        in print . show $
           Set.foldl'
             (\x y ->
-               if (manhattanDistance x < manhattanDistance y && x /= (0, 0))
-                 then x
-                 else y)
-            (0, 0)
+              case (x, signalNoise' y) of
+                (Just 0, noise) -> noise
+                (noise, Just 0) -> noise
+                (n, m)          -> if (n < m) then n else m
+            )
+            (Just maxBound)
             sharedPoints

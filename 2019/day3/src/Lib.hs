@@ -3,6 +3,7 @@ module Lib
   , interpretInstructions
   , manhattanDistance
   , puzzleLineParser
+  , signalNoise
   ) where
 
 import           Control.Applicative              ((<|>))
@@ -49,3 +50,8 @@ interpretInstructions hist@(_ :|> (x, y)) (inst:instrs) =
 
 manhattanDistance :: Point -> Int
 manhattanDistance (x, y) = abs x + abs y
+
+signalNoise :: History -> History -> Point -> Maybe Int
+signalNoise hist1 hist2 p =
+  let finder = elemIndexL p
+   in (+) <$> finder hist1 <*> finder hist2
