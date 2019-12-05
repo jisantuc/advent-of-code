@@ -11,6 +11,22 @@ puzzle = "1,0,0,3,1,1,2,3,1,3,4,3,1,5,0,3,2,13,1,19,1,9,19,23,2,23,13,27,1,27,9,
 testPuzzle :: BS.ByteString
 testPuzzle = "1,9,10,3,2,3,11,0,99,30,40,50"
 
+modifyPuzzle :: Puzzle -> Int -> Int -> Puzzle
+modifyPuzzle puzz n v =
+  head puzz : n : v : drop 3 puzz
+
+check :: Puzzle -> [Instruction] -> Int -> Int -> String
+check puzz instrs n v
+  | n > 99, v > 99 = error "No good my dude"
+  | v > 99 = check puzz instrs (n + 1) 0
+  | otherwise =
+    let
+      solved =
+        solve (modifyPuzzle puzz n v) instrs
+    in
+      if (head solved == 19690720) then (leftPad n ++ leftPad v) else
+        check puzz instrs n (v + 1)
+
 main :: IO ()
 main =
   let
@@ -20,10 +36,11 @@ main =
     case (instructions, registers) of
       (Right instrs, Right puzz) ->
         let
-          modifiedPuzz = head puzz : 12 : 2 : drop 3 puzz
+          part1Puzz = modifyPuzzle puzz 12 2
         in
           do
             print $ show instrs
-            print $ "Value at head of puzz at end: " ++ show (solve modifiedPuzz instrs)
+            print $ "Value at head of puzz at end: " ++ show (solve part1Puzz instrs)
+            print $ "Noun and verb for magic solve: " ++ check puzz instrs 0 0
       _ ->
         error $ "Failed to parse a list of integers, ya dumb"

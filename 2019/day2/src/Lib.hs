@@ -1,7 +1,9 @@
 module Lib
     ( instParser
+    , leftPad
     , solve
     , Instruction (..)
+    , Puzzle
     ) where
 
 import           Control.Applicative              ((<|>))
@@ -15,6 +17,11 @@ data Instruction = Add InRegister InRegister OutBuffer
   | Multiply InRegister InRegister OutBuffer
   | Halt
   | Invalid Int deriving (Eq, Show)
+
+leftPad :: Int -> String
+leftPad n
+  | n > 10 = show n
+  | otherwise = "0" ++ show n
 
 getInstParser :: (InRegister -> InRegister -> OutBuffer -> Instruction) -> Char -> Parser Instruction
 getInstParser f c = do
