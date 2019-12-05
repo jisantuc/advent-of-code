@@ -19,7 +19,6 @@ library
   exposed-modules:     Lib
   build-depends:       base >= 4.7 && < 5
                      , attoparsec
-                     , containers
   default-extensions:  OverloadedStrings
   default-language:    Haskell2010
 
