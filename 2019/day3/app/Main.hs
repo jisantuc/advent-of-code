@@ -10,6 +10,4 @@ instructions =
 
 main :: IO ()
 main =
-  let calc = execState $ track instructions
-  in
-    print . show $ calc Empty
+  print . show . snd $ interpretInstructions instructions Empty

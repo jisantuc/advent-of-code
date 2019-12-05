@@ -1,6 +1,6 @@
 module Lib
   ( Instruction(..)
-  , track
+  , interpretInstructions
   ) where
 
 import           Control.Applicative              ((<|>))
@@ -48,13 +48,3 @@ interpretInstructions (inst:instrs) hist@(_ :|> (x, y)) =
       interpretInstructions (Up (n - 1) : instrs) (hist |> (x, y + 1))
     Down n ->
       interpretInstructions (Down (n - 1) : instrs) (hist |> (x, y - 1))
-
-track :: [Instruction] -> State History (Seq Point)
-track [] = get
-track instrs =
-  do
-    history <- get
-    let
-      (remainingInstructions, newHistory) = interpretInstructions instrs history
-    put newHistory
-    track remainingInstructions
