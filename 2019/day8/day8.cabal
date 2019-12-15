@@ -41,6 +41,7 @@ test-suite day8-test
   main-is:             Spec.hs
   build-depends:       base
                      , day8
+                     , hspec
   ghc-options:         -Wall -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
