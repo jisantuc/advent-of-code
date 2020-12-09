@@ -1,12 +1,15 @@
 module Main where
 
+import Data.Text (Text)
 import qualified Data.Text.IO as TextIO
-import Day1 ( find32020, puzzleParser, tupProduct3 )
-import Text.Megaparsec (runParser)
+import Day2 (isValid, puzzleParser)
+import Text.Megaparsec (ParseErrorBundle, Parsec, runParser)
+
+parsePuzzle :: Parsec e s a -> s -> Either (ParseErrorBundle s e) a
+parsePuzzle parser puzzle = runParser parser "" puzzle
 
 main :: IO ()
 main = do
   puzzleInput <- TextIO.readFile "puzzle.txt"
-  let parseResult = runParser puzzleParser "" puzzleInput
-  let result = (find32020 <$> parseResult)
-  print $ (tupProduct3 <$>) <$> result
+  let parseResult = parsePuzzle puzzleParser puzzleInput
+  print $ ("Valid lines: " ++) . show . length . filter isValid <$> parseResult
