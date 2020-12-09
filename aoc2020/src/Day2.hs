@@ -10,8 +10,8 @@ import Text.Megaparsec.Char.Lexer (charLiteral, decimal)
 
 data Policy = Policy
   { character :: Char,
-    minTimes :: Int,
-    maxTimes :: Int
+    position1 :: Int,
+    position2 :: Int
   }
   deriving (Show)
 
@@ -19,26 +19,26 @@ type PuzzleLine = (Policy, String)
 
 type Parser = Parsec Void Text
 
+xor :: Bool -> Bool -> Bool
+xor = (/=)
+
 isValid :: PuzzleLine -> Bool
-isValid ((Policy c min max), pw) =
-  let charCount =
-        foldl
-          (\s newChar -> if (newChar == c) then (s + 1) else s)
-          0
-          pw
-   in charCount >= min && charCount <= max
+isValid ((Policy c pos1 pos2), pw) =
+  let charAt1 = pw !! (pos1 - 1)
+      charAt2 = pw !! (pos2 - 1)
+   in (charAt1 == c) `xor` (charAt2 == c)
 
 puzzleLineParser :: Parser PuzzleLine
 puzzleLineParser = do
-  min <- decimal
+  pos1 <- decimal
   char '-'
-  max <- decimal
+  pos2 <- decimal
   char ' '
   policyCharacter <- charLiteral
   char ':' *> char ' '
   pw <- many letterChar
   eol
-  pure $ (Policy policyCharacter min max, pw)
+  pure $ (Policy policyCharacter pos1 pos2, pw)
 
 puzzleParser :: Parser [PuzzleLine]
 puzzleParser = many puzzleLineParser

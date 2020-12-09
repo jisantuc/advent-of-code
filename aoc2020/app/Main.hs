@@ -1,6 +1,5 @@
 module Main where
 
-import Data.Text (Text)
 import qualified Data.Text.IO as TextIO
 import Day2 (isValid, puzzleParser)
 import Text.Megaparsec (ParseErrorBundle, Parsec, runParser)
