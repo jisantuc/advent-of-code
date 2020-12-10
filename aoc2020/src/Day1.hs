@@ -6,12 +6,10 @@ import Control.Monad (guard)
 import Data.List (find)
 import Data.Maybe (listToMaybe)
 import Data.Text (Text, pack)
-import Data.Void (Void)
-import Text.Megaparsec (MonadParsec (eof), Parsec, many, (<|>))
+import Parser (Parser)
+import Text.Megaparsec (MonadParsec (eof), many, (<|>))
 import Text.Megaparsec.Char (eol)
 import Text.Megaparsec.Char.Lexer (decimal)
-
-type Parser = Parsec Void Text
 
 lineParser :: Parser Integer
 lineParser = decimal <* eol

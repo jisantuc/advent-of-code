@@ -2,9 +2,8 @@
 
 module Day2 where
 
-import Data.Text (Text)
-import Data.Void (Void)
-import Text.Megaparsec (Parsec, many)
+import Parser (Parser)
+import Text.Megaparsec (many)
 import Text.Megaparsec.Char (char, eol, letterChar)
 import Text.Megaparsec.Char.Lexer (charLiteral, decimal)
 
@@ -16,8 +15,6 @@ data Policy = Policy
   deriving (Show)
 
 type PuzzleLine = (Policy, String)
-
-type Parser = Parsec Void Text
 
 xor :: Bool -> Bool -> Bool
 xor = (/=)

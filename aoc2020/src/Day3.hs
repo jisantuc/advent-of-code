@@ -1,12 +1,9 @@
 module Day3 where
 
 import Data.Monoid (Product)
-import Data.Text (Text)
-import Data.Void (Void)
-import Text.Megaparsec (Parsec, many, (<|>))
+import Parser (Parser)
+import Text.Megaparsec (many, (<|>))
 import Text.Megaparsec.Char (char, eol)
-
-type Parser = Parsec Void Text
 
 data GridSquare = Tree | OpenSquare deriving (Eq, Show)
 
