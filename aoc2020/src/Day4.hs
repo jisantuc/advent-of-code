@@ -3,6 +3,7 @@
 module Day4 where
 
 import Data.List (foldl')
+import qualified Data.Set as Set
 import Data.Text (Text)
 import Parser (Parser)
 import Text.Megaparsec (MonadParsec (try), choice, many, sepBy1, sepEndBy, (<|>))
@@ -14,7 +15,7 @@ data PassportField
   | IssueYear Integer
   | ExpirationYear Integer
   | Height Integer (Maybe Unit)
-  | HairColor String
+  | HairColor String Bool
   | EyeColor String
   | PassportId String
   | CountryId Integer
@@ -39,24 +40,27 @@ isValid (Validation byr iyr eyr hgt hair eye pid) =
 
 validate :: [PassportField] -> Validation
 validate fields =
-  foldl'
-    ( \validation field ->
-        case field of
-          (BirthYear _) -> validation {containsBirth = True}
-          (IssueYear _) -> validation {containsIssueYear = True}
-          (ExpirationYear _) -> validation {containsExpiration = True}
-          (Height _ _) -> validation {containsHeight = True}
-          (HairColor _) -> validation {containsHair = True}
-          (EyeColor _) -> validation {containsEye = True}
-          (PassportId _) -> validation {containsPid = True}
-          (CountryId _) -> validation
-    )
-    emptyValidation
-    fields
+  let validEyes = Set.fromList ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]
+   in foldl'
+        ( \validation field ->
+            case field of
+              (BirthYear yr) -> validation {containsBirth = yr >= 1920 && yr <= 2002}
+              (IssueYear yr) -> validation {containsIssueYear = yr >= 2010 && yr <= 2020}
+              (ExpirationYear yr) -> validation {containsExpiration = yr >= 2020 && yr <= 2030}
+              (Height value (Just Centimeter)) -> validation {containsHeight = value >= 150 && value <= 193}
+              (Height value (Just Inch)) -> validation {containsHeight = value >= 59 && value <= 76}
+              (Height _ _) -> validation
+              (HairColor _ b) -> validation {containsHair = b}
+              (EyeColor color) -> validation {containsEye = color `elem` validEyes}
+              (PassportId pid) -> validation {containsPid = length pid == 9}
+              (CountryId _) -> validation
+        )
+        emptyValidation
+        fields
 
 data Unit
   = Inch
-  | Centimer
+  | Centimeter
   deriving (Eq, Ord, Show)
 
 fieldParser :: (a -> PassportField) -> Text -> Parser a -> Parser PassportField
@@ -80,7 +84,7 @@ expirationYearParser = fieldParser ExpirationYear "eyr" decimal
 unitParser :: Parser (Maybe Unit)
 unitParser =
   ( try $
-      Just Centimer <$ string "cm"
+      Just Centimeter <$ string "cm"
         <|> Just Inch <$ string "in"
   )
     <|> pure Nothing
@@ -91,10 +95,18 @@ heightParser = Height <$> (string "hgt" *> char ':' *> decimal) <*> unitParser
 colorParser :: Parser String
 colorParser =
   (try $ char '#' *> many alphaNumChar)
-    <|> many alphaNumChar
+    <|> many
+      alphaNumChar
+
+colorParserHair :: Parser (String, Bool)
+colorParserHair = do
+  hasPound <-
+    (True <$ try (char '#')) <|> pure False
+  color <- many alphaNumChar
+  pure (color, hasPound)
 
 hairColorParser :: Parser PassportField
-hairColorParser = fieldParser HairColor "hcl" colorParser
+hairColorParser = fieldParser (uncurry HairColor) "hcl" colorParserHair
 
 eyeColorParser :: Parser PassportField
 eyeColorParser = fieldParser EyeColor "ecl" colorParser
