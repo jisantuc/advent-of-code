@@ -1,8 +1,8 @@
 module Main where
 
 import qualified Data.Text.IO as TextIO
-import Day5 (findMissingSeat, puzzleParser)
-import Text.Megaparsec (ParseErrorBundle, Parsec, parseTest, runParser)
+import Day6 (puzzleParser)
+import Text.Megaparsec (ParseErrorBundle, Parsec, runParser)
 
 parsePuzzle :: Parsec e s a -> s -> Either (ParseErrorBundle s e) a
 parsePuzzle parser puzzle = runParser parser "" puzzle
@@ -10,5 +10,5 @@ parsePuzzle parser puzzle = runParser parser "" puzzle
 main :: IO ()
 main = do
   puzzleInput <- TextIO.readFile "puzzle.txt"
-  let seats = parsePuzzle puzzleParser puzzleInput
-  print $ show . findMissingSeat <$> seats
+  let parseResult = parsePuzzle puzzleParser puzzleInput
+  print $ sum <$> (length <$>) <$> parseResult
