@@ -1,6 +1,7 @@
 module Day5 where
 
 import Control.Monad (replicateM)
+import qualified Data.Set as Set
 import Parser (Parser)
 import Text.Megaparsec (sepBy, (<|>))
 import Text.Megaparsec.Char (char, eol)
@@ -44,3 +45,9 @@ puzzleParser = sepBy seatParser eol
 
 seatId :: Seat -> Int
 seatId (Seat r c) = 8 * r + c
+
+findMissingSeat :: [Seat] -> Set.Set Int
+findMissingSeat [] = Set.empty
+findMissingSeat seats =
+  let seatIds = Set.fromList $ seatId <$> seats
+   in Set.filter (\x -> ((not $ x + 1 `elem` seatIds) && x + 2 `elem` seatIds)) seatIds

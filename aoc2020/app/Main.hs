@@ -1,7 +1,7 @@
 module Main where
 
 import qualified Data.Text.IO as TextIO
-import Day5 (puzzleParser, seatId)
+import Day5 (findMissingSeat, puzzleParser)
 import Text.Megaparsec (ParseErrorBundle, Parsec, parseTest, runParser)
 
 parsePuzzle :: Parsec e s a -> s -> Either (ParseErrorBundle s e) a
@@ -11,4 +11,4 @@ main :: IO ()
 main = do
   puzzleInput <- TextIO.readFile "puzzle.txt"
   let seats = parsePuzzle puzzleParser puzzleInput
-  print $ show . maximum . (seatId <$>) <$> seats
+  print $ show . findMissingSeat <$> seats
