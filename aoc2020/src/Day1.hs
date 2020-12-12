@@ -24,10 +24,14 @@ findTarget :: Integer -> [Integer] -> Maybe (Integer, Integer)
 findTarget n arr =
   go n 1 arr
   where
+    arrLength = length arr
     tupSum (x, y) = x + y
     go target rotation src =
-      (find (\x -> tupSum x == target) $ zip src (rotateArray rotation src))
-        <|> go target (rotation + 1) src
+      if (rotation >= arrLength)
+        then Nothing
+        else
+          (find (\x -> tupSum x == target) $ zip src (rotateArray rotation src))
+            <|> go target (rotation + 1) src
 
 findTarget3 :: Integer -> [Integer] -> Maybe (Integer, Integer, Integer)
 findTarget3 n arr =
