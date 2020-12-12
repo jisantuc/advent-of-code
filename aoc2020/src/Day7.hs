@@ -2,10 +2,8 @@
 
 module Day7 where
 
-import Data.Foldable (Foldable (fold))
 import qualified Data.List as List
 import qualified Data.Map.Strict as M
-import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
 import Data.Text (Text)
 import Parser (Parser)
@@ -15,13 +13,16 @@ import Text.Megaparsec.Char.Lexer (charLiteral, decimal)
 
 newtype BagColor = BagColor String deriving (Eq, Ord, Show)
 
-type BagPolicy = M.Map BagColor (Set.Set BagColor)
+type BagPolicy = M.Map BagColor (Set.Set Rule)
 
-singleton :: BagColor -> BagColor -> BagPolicy
-singleton color containedBy = M.singleton color (Set.singleton containedBy)
+data Rule = Rule
+  { requiredBagColor :: BagColor,
+    howMany :: Integer
+  }
+  deriving (Eq, Ord, Show)
 
-addRule :: BagPolicy -> BagColor -> BagColor -> BagPolicy
-addRule policy color rule = policy <> singleton color rule
+singleton :: BagColor -> [Rule] -> BagPolicy
+singleton color rules = M.singleton color (Set.fromList rules)
 
 bagParser :: Parser Text
 bagParser =
@@ -31,18 +32,24 @@ bagColorParser :: Parser BagColor
 bagColorParser =
   BagColor . unwords <$> sepBy (some alphaNumChar) (char ' ')
 
-bagContainedParser :: Parser [BagColor]
+ruleParser :: Parser Rule
+ruleParser = do
+  howMany <- decimal
+  char ' '
+  color <- BagColor <$> manyTill charLiteral bagParser
+  pure $ Rule color howMany
+
+bagContainedParser :: Parser [Rule]
 bagContainedParser =
   ([] <$ string "no other bags")
-    <|> (sepBy (decimal *> char ' ' *> (BagColor <$> manyTill charLiteral bagParser)) (string ", "))
+    <|> (sepBy ruleParser (string ", "))
 
 policyLineParser :: Parser BagPolicy
 policyLineParser = do
   container <- BagColor <$> manyTill charLiteral (string " bags contain ")
   rules <- bagContainedParser
   char '.'
-  let combined = singleton <$> rules <*> [container]
-  pure $ mconcat combined
+  pure $ singleton container rules
 
 puzzleParser :: Parser BagPolicy
 puzzleParser =
@@ -51,8 +58,12 @@ puzzleParser =
 shinyGold :: BagColor
 shinyGold = BagColor "shiny gold"
 
-findContainersFor :: BagColor -> BagPolicy -> Set.Set BagColor
-findContainersFor color policy =
-  let directContainers = fromMaybe Set.empty (M.lookup color policy)
-      ancestralContainers = fold $ Set.map (\c -> findContainersFor c policy) directContainers
-   in directContainers <> ancestralContainers
+countContainedBags :: BagPolicy -> BagColor -> Integer
+countContainedBags policy color =
+  let rules = M.lookup color policy
+   in case rules of
+        Just bagRules ->
+          sum $
+            (\(Rule bc hm) -> hm * countContainedBags policy bc + hm)
+              <$> Set.toList bagRules
+        Nothing -> 0

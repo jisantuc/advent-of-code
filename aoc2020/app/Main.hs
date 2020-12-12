@@ -1,8 +1,7 @@
 module Main where
 
-import qualified Data.Set as Set
 import qualified Data.Text.IO as TextIO
-import Day7 (findContainersFor, puzzleParser, shinyGold)
+import Day7 (countContainedBags, puzzleParser, shinyGold)
 import Text.Megaparsec (ParseErrorBundle, Parsec, runParser)
 
 parsePuzzle :: Parsec e s a -> s -> Either (ParseErrorBundle s e) a
@@ -16,4 +15,4 @@ main = do
     Left err -> print $ show err
     Right policy ->
       do
-        print . show . Set.size $ findContainersFor shinyGold policy
+        print . show $ countContainedBags policy shinyGold
