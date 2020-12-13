@@ -46,7 +46,7 @@ instructionParser =
     <|> parseInst "acc" Accumulate
 
 update :: HandheldPuzzle -> Instruction -> HandheldPuzzle
-update puzz (NoOp x) =
+update puzz (NoOp _) =
   puzz
     { nextLine = nextLine puzz + 1,
       executedLines = Set.union (Set.singleton $ nextLine puzz) (executedLines puzz)
