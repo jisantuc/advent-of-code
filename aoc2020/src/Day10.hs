@@ -1,15 +1,16 @@
 module Day10 where
 
 import Data.List (foldl')
-import Debug.Trace (trace)
+import Data.Semigroup (Product (Product))
+import qualified Data.Vector as V
 import Parser (Parser)
 import Text.Megaparsec (sepBy)
 import Text.Megaparsec.Char (eol)
 import Text.Megaparsec.Char.Lexer (decimal)
 
 data Solution = Solution
-  { threeVoltDiffs :: Int,
-    oneVoltDiffs :: Int,
+  { threeJoltDiffs :: Int,
+    oneJoltDiffs :: Int,
     mystery :: Int
   }
   deriving (Show)
@@ -17,16 +18,35 @@ data Solution = Solution
 emptySol :: Solution
 emptySol = Solution 0 0 0
 
-voltDifferences :: [Int] -> [Int]
-voltDifferences nums = trace (show nums) $ zipWith (-) (drop 1 nums) nums
+joltDifferences :: V.Vector Int -> V.Vector Int
+joltDifferences nums = V.zipWith (-) (V.drop 1 nums) nums
 
 solve :: [Int] -> Solution
 solve nums =
   let folder acc num = case num of
-        1 -> acc {oneVoltDiffs = oneVoltDiffs acc + 1}
-        3 -> acc {threeVoltDiffs = threeVoltDiffs acc + 1}
+        1 -> acc {oneJoltDiffs = oneJoltDiffs acc + 1}
+        3 -> acc {threeJoltDiffs = threeJoltDiffs acc + 1}
         _ -> acc {mystery = mystery acc + 1}
    in foldl' folder emptySol nums
 
 puzzleParser :: Parser [Int]
-puzzleParser = sepBy decimal eol
+puzzleParser = (0 :) <$> sepBy decimal eol
+
+splitOn :: Int -> V.Vector Int -> (V.Vector Int, V.Vector Int)
+splitOn n vec =
+  (V.takeWhile (/= n) vec, V.dropWhile (== n) $ V.dropWhile (/= n) vec)
+
+contiguousOnes :: V.Vector Int -> [Int]
+contiguousOnes diffs =
+  let (h, t) = splitOn 3 diffs
+   in if (V.null t) then [length h] else (length h : contiguousOnes t)
+
+pathsForContiguousRegionSize :: Int -> Int
+pathsForContiguousRegionSize x
+  | x < 2 = 1
+  | otherwise = 2 * (x - 1)
+
+countArrangements :: V.Vector Int -> Int
+countArrangements differences =
+  let regions = contiguousOnes differences
+   in foldl' (*) 1 $ pathsForContiguousRegionSize <$> regions

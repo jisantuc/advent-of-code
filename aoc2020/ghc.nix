@@ -5,5 +5,5 @@ pkgs.haskellPackages.ghcWithPackages (ps: with ps; [
         bytestring megaparsec text parser-combinators containers
         vector
         # build / environment-required tools
-        haddock ghcide
+        ghcide implicit-hie
 ])

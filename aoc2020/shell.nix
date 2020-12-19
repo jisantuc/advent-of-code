@@ -5,6 +5,7 @@ with import <nixpkgs> {};
     ghc = import ./ghc.nix;
   in
     pkgs.mkShell {
+      name = "advent-of-code";
       buildInputs = [ pkgs.stack
                       pkgs.ormolu 
                       ghc ];

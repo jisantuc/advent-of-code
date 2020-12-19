@@ -2,7 +2,8 @@ module Main where
 
 import Data.List (sort)
 import qualified Data.Text.IO as TextIO
-import Day10 (oneVoltDiffs, puzzleParser, solve, threeVoltDiffs, voltDifferences)
+import qualified Data.Vector as V
+import Day10 (countArrangements, joltDifferences, oneJoltDiffs, puzzleParser, solve, threeJoltDiffs)
 import Text.Megaparsec (ParseErrorBundle, Parsec, parseTest, runParser)
 
 parsePuzzle :: Parsec e s a -> s -> Either (ParseErrorBundle s e) a
@@ -15,8 +16,12 @@ main = do
   let parseResult = parsePuzzle puzzleParser puzzleInput
   case parseResult of
     Right puzz ->
-      let solution = solve . voltDifferences . sort $ puzz
-       in print . show $ (oneVoltDiffs solution + 1) * (threeVoltDiffs solution + 1)
+      let sorted = sort puzz
+          diffs = joltDifferences (V.fromList sorted)
+       in do
+            print . show $ diffs
+            let puzzleVec = V.fromList $ sort puzz
+            print . show $ countArrangements diffs
     Left err ->
       do
         print "oh no 😢"
