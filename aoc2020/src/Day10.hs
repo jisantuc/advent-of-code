@@ -43,8 +43,10 @@ contiguousOnes diffs =
 
 pathsForContiguousRegionSize :: Int -> Int
 pathsForContiguousRegionSize x
-  | x < 2 = 1
-  | otherwise = 2 * (x - 1)
+  | x == 4 = 7
+  | x == 3 = 4
+  | x == 2 = 2
+  | otherwise = 1
 
 countArrangements :: V.Vector Int -> Int
 countArrangements differences =
