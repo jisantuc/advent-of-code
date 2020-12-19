@@ -10,24 +10,38 @@ import Text.Megaparsec.Char (char, eol)
 
 data Seat = Empty | Occupied | Floor deriving (Eq, Show)
 
+type Coord = (Int, Int)
+
 type FloorChart =
   M.Map
-    (Int, Int)
+    Coord
     Seat
 
-minX :: M.Map (Int, Int) a -> Int
+signedStep :: Int -> Int
+signedStep n
+  | n == 0 = 0
+  | abs n == n = 1
+  | otherwise = -1
+
+nextStep :: Coord -> Coord -> Coord
+nextStep (neighborX, neighborY) (hostX, hostY) =
+  let dX = signedStep (neighborX - hostX)
+      dY = signedStep (neighborY - hostY)
+   in (neighborX + dX, neighborY + dY)
+
+minX :: M.Map Coord a -> Int
 minX c = minimum $ fst <$> M.keys c
 
-maxX :: M.Map (Int, Int) a -> Int
+maxX :: M.Map Coord a -> Int
 maxX c = maximum $ fst <$> M.keys c
 
-minY :: M.Map (Int, Int) a -> Int
+minY :: M.Map Coord a -> Int
 minY c = minimum $ snd <$> M.keys c
 
-maxY :: M.Map (Int, Int) a -> Int
+maxY :: M.Map Coord a -> Int
 maxY c = maximum $ snd <$> M.keys c
 
-neighbors :: (Int, Int) -> [(Int, Int)]
+neighbors :: Coord -> [Coord]
 neighbors (x, y) =
   [ (x - 1, y - 1),
     (x, y - 1),
@@ -39,20 +53,26 @@ neighbors (x, y) =
     (x + 1, y + 1)
   ]
 
-grid :: FloorChart -> [(Int, Int)]
+grid :: FloorChart -> [Coord]
 grid chart =
   let xs = [minX chart .. maxX chart]
       ys = [minY chart .. maxY chart]
    in liftA2 (,) xs ys
 
-stepSeat :: FloorChart -> (Int, Int) -> ((Int, Int), Seat)
+checkNeighbor :: Coord -> Coord -> FloorChart -> Seat
+checkNeighbor neighbor host chart =
+  case getSeat chart neighbor of
+    Floor -> checkNeighbor (nextStep neighbor host) host chart
+    seat -> seat
+
+stepSeat :: FloorChart -> Coord -> (Coord, Seat)
 stepSeat chart coord =
   let adjacentCoords = neighbors coord
       thisSeat = getSeat chart coord
       occupiedNeighbors =
         foldl'
           ( \acc c ->
-              case getSeat chart c of
+              case checkNeighbor c coord chart of
                 Empty -> acc
                 Floor -> acc
                 Occupied -> acc + 1
@@ -64,9 +84,9 @@ stepSeat chart coord =
         (Empty, 0) -> (coord, Occupied)
         (Empty, _) -> (coord, Empty)
         (Occupied, n) ->
-          if (n >= 4) then (coord, Empty) else (coord, Occupied)
+          if (n >= 5) then (coord, Empty) else (coord, Occupied)
 
-getSeat :: FloorChart -> (Int, Int) -> Seat
+getSeat :: FloorChart -> Coord -> Seat
 getSeat chart coord = fromMaybe Empty (M.lookup coord chart)
 
 step :: FloorChart -> FloorChart
@@ -80,7 +100,7 @@ seatParser =
     <|> Occupied <$ char '#'
     <|> Floor <$ char '.'
 
-indexList :: Show a => [[a]] -> [((Int, Int), a)]
+indexList :: Show a => [[a]] -> [(Coord, a)]
 indexList as = do
   (y, row) <- zip [1 ..] as
   (x, a) <- zip [1 ..] row
@@ -94,12 +114,10 @@ puzzleParser = do
 
 countOccupied :: FloorChart -> Int
 countOccupied =
-  M.foldl'
-    ( \acc seat -> case seat of
-        Occupied -> acc + 1
-        _ -> acc
-    )
-    0
+  countWhen (== Occupied)
+
+countWhen :: (Seat -> Bool) -> FloorChart -> Int
+countWhen p = M.foldl' (\acc seat -> if (p seat) then acc + 1 else acc) 0
 
 solve :: FloorChart -> Int
 solve chart =

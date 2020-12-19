@@ -3,7 +3,7 @@ module Main where
 import Data.List (sort)
 import qualified Data.Text.IO as TextIO
 import qualified Data.Vector as V
-import Day11 (puzzleParser, solve)
+import Day11 (Seat (..), countOccupied, countWhen, puzzleParser, solve)
 import Text.Megaparsec (ParseErrorBundle, Parsec, parseTest, runParser)
 
 parsePuzzle :: Parsec e s a -> s -> Either (ParseErrorBundle s e) a
@@ -16,7 +16,8 @@ main = do
   let parseResult = parsePuzzle puzzleParser puzzleInput
   case parseResult of
     Right puzz ->
-      print $ "Occupied seats: " ++ (show $ solve puzz)
+      do
+        print $ show "Occupied seats: " ++ (show $ solve puzz)
     Left err ->
       do
         print "oh no 😢"
