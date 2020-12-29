@@ -17,7 +17,7 @@ main = do
   case parseResult of
     Right puzz ->
       do
-        print $ show "Departure product: " ++ (show $ solve puzz)
+        print $ show "First successful ts: " ++ (show $ solve puzz)
     Left err ->
       do
         print "oh no 😢"
