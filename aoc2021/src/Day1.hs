@@ -18,6 +18,7 @@ solvePart1 ints@(_:t) =
 
 slidingSums :: Int -> [Int] -> [Int]
 slidingSums windowSize ns =
+    -- https://twitter.com/GabriellaG439/status/701460899589017600
     let sliding = transpose (take windowSize (tails ns))
     in
         foldl' (+) 0 <$> sliding
