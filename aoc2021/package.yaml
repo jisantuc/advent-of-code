@@ -1,0 +1,58 @@
+name: aoc2021
+version: 0.0.1.0
+github: "jisantuc/aoc2021"
+license: MIT
+author: "James Santucci"
+maintainer: "james.santucci@gmail.com"
+copyright: "2021 James Santucci"
+
+extra-source-files:
+  - README.md
+  - CHANGELOG.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description: Please see the README on GitHub at <https://github.com/jisantuc/aoc2021#readme>
+
+ghc-options:
+  - -Wall
+  - -Werror
+
+dependencies:
+  - base >= 4.7 && < 5
+  - containers
+  - megaparsec
+  - text
+  - vector
+
+library:
+  source-dirs: src
+
+executables:
+  aoc2021:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - aoc2021
+
+tests:
+  aoc2021-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - aoc2021
+      - hspec
+      - hspec-discover
