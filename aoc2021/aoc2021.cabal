@@ -26,6 +26,8 @@ source-repository head
 library
   exposed-modules:
       Aoc2021
+      Day1
+      Parser
   other-modules:
       Paths_aoc2021
   hs-source-dirs:

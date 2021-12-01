@@ -1,5 +1,5 @@
 { mkDerivation, base, containers, hpack, hspec, hspec-discover, lib
-, megaparsec, text, vector
+, megaparsec, text, vector, extraToolDeps ? [ ]
 }:
 mkDerivation {
   pname = "aoc2021";
@@ -13,7 +13,7 @@ mkDerivation {
   testHaskellDepends = [
     base containers hspec hspec-discover megaparsec text vector
   ];
-  testToolDepends = [ hspec-discover ];
+  testToolDepends = [ hspec-discover ] ++ extraToolDeps;
   prePatch = "hpack";
   homepage = "https://github.com/jisantuc/aoc2021#readme";
   license = lib.licenses.mit;

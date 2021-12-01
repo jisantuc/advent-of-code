@@ -1,18 +1,8 @@
 module Main where
 
-import Data.List (sort)
 import qualified Data.Text.IO as TextIO
-import qualified Data.Vector as V
-import Text.Megaparsec (ParseErrorBundle, Parsec, parseTest, runParser)
-
-puzzleParser :: Parsec e s a
-puzzleParser = undefined
-
-solve :: Show a => s -> a
-solve = undefined
-
-parsePuzzle :: Parsec e s a -> s -> Either (ParseErrorBundle s e) a
-parsePuzzle parser puzzle = runParser parser "" puzzle
+import Day1 (solve, puzzleParser)
+import Parser (parsePuzzle)
 
 main :: IO ()
 main = do
@@ -22,7 +12,7 @@ main = do
   case parseResult of
     Right puzz ->
       do
-        print $ show "First successful ts: " ++ (show $ (solve puzz :: Int))
+        print $ show "Number of increases: " ++ (show $ solve puzz)
     Left err ->
       do
         print "oh no 😢"
