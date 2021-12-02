@@ -7,18 +7,15 @@ import Data.Void (Void)
 import Day1 (Puzzle, puzzleParser, solvePart1, solvePart2)
 import Parser (parsePuzzle)
 import Test.Hspec (Spec, describe, it, shouldBe)
+import Testing (expectParsed)
 import Text.Megaparsec (ParseErrorBundle)
 
 spec :: Spec
 spec = describe "day 1 puzzle" $ do
   it "gets the right answer for the part 1 example" $
-    case parsedExample of
-      Right puzz -> solvePart1 puzz `shouldBe` 7
-      Left _ -> fail "Parsing failed, see the parses the example test for more info"
+    expectParsed parsedExample $ \puzz -> solvePart1 puzz `shouldBe` 7
   it "gets the right answer for the part 2 example" $
-    case parsedExample of
-      Right puzz -> solvePart2 puzz `shouldBe` 5
-      Left _ -> fail "Parsing failed, see the parses the example test for more info"
+    expectParsed parsedExample $ \puzz -> solvePart2 puzz `shouldBe` 5
   it "parses the example" $
     parsedExample `shouldBe` (Right [199, 200, 208, 210, 200, 207, 240, 269, 260, 263])
 
