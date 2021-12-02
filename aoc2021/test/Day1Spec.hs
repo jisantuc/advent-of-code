@@ -2,12 +2,12 @@
 
 module Day1Spec where
 
-import Day1 (puzzleParser, Puzzle, solvePart2, solvePart1)
-import Test.Hspec (Spec, describe, it, shouldBe)
 import Data.Text (Text)
-import Parser (parsePuzzle)
-import Text.Megaparsec (ParseErrorBundle)
 import Data.Void (Void)
+import Day1 (Puzzle, puzzleParser, solvePart1, solvePart2)
+import Parser (parsePuzzle)
+import Test.Hspec (Spec, describe, it, shouldBe)
+import Text.Megaparsec (ParseErrorBundle)
 
 spec :: Spec
 spec = describe "day 1 puzzle" $ do
