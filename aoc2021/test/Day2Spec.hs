@@ -11,7 +11,7 @@ import Testing (expectParsed)
 import Text.Megaparsec (ParseErrorBundle)
 
 spec :: Spec
-spec = describe "day 1 puzzle" $ do
+spec = describe "day 2 puzzle" $ do
   it "parses the example" $
     parsedExample
       `shouldBe` ( Right

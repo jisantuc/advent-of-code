@@ -2,7 +2,7 @@ module Parser where
 
 import Data.Text (Text)
 import Data.Void (Void)
-import Text.Megaparsec (Parsec, ParseErrorBundle, runParser)
+import Text.Megaparsec (ParseErrorBundle, Parsec, runParser)
 
 type Parser = Parsec Void Text
 

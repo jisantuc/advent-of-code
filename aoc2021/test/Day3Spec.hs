@@ -4,21 +4,21 @@ module Day3Spec where
 
 import Data.Text (Text)
 import Data.Void (Void)
-import Day3 (puzzleParser, Puzzle, solvePart1, findGammaBit, solvePart2)
+import Day3 (Puzzle, findGammaBit, puzzleParser, solvePart1, solvePart2)
 import Parser (parsePuzzle)
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Testing (expectParsed)
 import Text.Megaparsec (ParseErrorBundle)
 
 spec :: Spec
-spec = describe "day 1 puzzle" $ do
+spec = describe "day 3 puzzle" $ do
   it "parses the example" $
     parsedExample
-      `shouldBe` ( Right [ 4, 30, 22, 23, 21, 15, 7, 28, 16, 25, 2, 10 ]
+      `shouldBe` ( Right [4, 30, 22, 23, 21, 15, 7, 28, 16, 25, 2, 10]
                  )
   it "gets the right answer for the part 1 example" $
     expectParsed parsedExample $ \puzz -> solvePart1 puzz `shouldBe` 198
-  -- need to count down from 4 instead of up from 0 
+  -- need to count down from 4 instead of up from 0
   it "finds the correct first gamma bit for the example puzzle" $
     expectParsed parsedExample $ \puzz -> findGammaBit puzz 4 `shouldBe` True
   it "finds the correct second gamma bit for the example puzzle" $
