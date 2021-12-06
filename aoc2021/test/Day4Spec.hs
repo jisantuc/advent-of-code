@@ -6,7 +6,7 @@ module Day4Spec where
 import Data.Text (Text)
 import qualified Data.Text.IO as T
 import Data.Void (Void)
-import Day4 (BingoBoard (..), GameState (..), Puzzle (..), boardParser, evaluateGame, findUnmarkedScore, puzzleParser, rowParser, solvePart1)
+import Day4 (BingoBoard (..), GameState (..), Puzzle (..), boardParser, evaluateGame1, findUnmarkedScore, puzzleParser, rowParser, solvePart1, solvePart2)
 import Parser (parsePuzzle)
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Testing (expectParsed, expectParsedIO, expectSuccessfulParse)
@@ -36,12 +36,14 @@ spec = describe "day 4 puzzle" $ do
     expectParsedIO parsedExample $ \(Puzzle {boards}) -> length boards `shouldBe` 3
   it "should get the right unmarked sum for part 1" $
     expectParsedIO parsedExample $ \puzz ->
-      let GameState {winner} = evaluateGame puzz
+      let GameState {winner} = evaluateGame1 puzz
        in case winner of
             Nothing -> fail "No winner was found"
             Just (b, _) -> findUnmarkedScore b `shouldBe` 188
   it "should get the right answer for part 1" $
     expectParsedIO parsedExample $ \puzz -> solvePart1 puzz `shouldBe` 4512
+  it "should get the right answer for part 2" $
+    expectParsedIO parsedExample $ \puzz -> solvePart2 puzz `shouldBe` 1924
 
 parsedExample :: IO (Either (ParseErrorBundle Text Void) Puzzle)
 parsedExample = parsePuzzle puzzleParser <$> testPuzzle
