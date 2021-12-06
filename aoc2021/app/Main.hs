@@ -1,7 +1,7 @@
 module Main where
 
 import qualified Data.Text.IO as TextIO
-import Day4 (boards, puzzleParser, solve)
+import Day4 (puzzleParser, solve)
 import Parser (parsePuzzle)
 
 main :: IO ()
