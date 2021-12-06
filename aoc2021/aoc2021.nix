@@ -1,5 +1,15 @@
-{ mkDerivation, base, containers, hpack, hspec, hspec-discover, lib
-, megaparsec, text, vector, extraToolDeps ? [ ]
+{ mkDerivation
+, base
+, containers
+, glibc
+, hpack
+, hspec
+, hspec-discover
+, lib
+, megaparsec
+, text
+, vector
+, extraToolDeps ? [ ]
 }:
 mkDerivation {
   pname = "aoc2021";
@@ -8,10 +18,16 @@ mkDerivation {
   isLibrary = true;
   isExecutable = true;
   libraryHaskellDepends = [ base containers megaparsec text vector ];
-  libraryToolDepends = [ hpack ];
+  libraryToolDepends = [ hpack glibc ];
   executableHaskellDepends = [ base containers megaparsec text vector ];
   testHaskellDepends = [
-    base containers hspec hspec-discover megaparsec text vector
+    base
+    containers
+    hspec
+    hspec-discover
+    megaparsec
+    text
+    vector
   ];
   testToolDepends = [ hspec-discover ] ++ extraToolDeps;
   prePatch = "hpack";

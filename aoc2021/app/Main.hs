@@ -12,7 +12,7 @@ main = do
   case parseResult of
     Right puzz ->
       do
-        print $ show "Power consumption: " ++ (show $ solve puzz)
+        print $ show "Life support: " ++ (show $ solve puzz)
     Left err ->
       do
         print "oh no 😢"

@@ -6,6 +6,7 @@ import Text.Megaparsec.Char.Lexer (binary)
 import Text.Megaparsec (sepEndBy)
 import Text.Megaparsec.Char (eol)
 import Data.Foldable (foldl')
+import Data.Maybe (listToMaybe, fromMaybe)
 
 type Puzzle = [Int]
 
@@ -33,7 +34,7 @@ findGammaBit puzz shift =
         numberOfExamples = length puzz
         sumOfBits = foldl' (\acc n -> (shiftR n shift .&. 1 + acc)) 0 puzz
     in
-        sumOfBits > numberOfExamples `div` 2
+        2 * sumOfBits >= numberOfExamples
 
 invertBit :: Bool -> Bool
 invertBit = not
@@ -71,5 +72,23 @@ solvePart1 ns =
     in
         gammaSum * epsilonSum
 
+solvePart2 :: Puzzle -> Maybe Int 
+solvePart2 [] = Nothing
+solvePart2 ns =
+    let
+        maxValue = maximum ns
+        bitsToCheck = reverse [ 0 .. intLog maxValue ]
+        matchesBit x b gamma = (shiftR x b .&. 1 == 1 && gamma) || (shiftR x b .&. 1 == 0 && not gamma)
+        compareBits boolF f = foldl' (\acc b ->
+            case acc of
+                [x] -> [x]
+                arr ->
+                    let gammaBit = boolF $ findGammaBit arr b
+                    in filter (\x -> f x b gammaBit) arr ) 
+        oxygenRating = compareBits id matchesBit ns bitsToCheck
+        scrubberRating = compareBits invertBit matchesBit ns bitsToCheck
+    in
+        (*) <$> listToMaybe scrubberRating <*> listToMaybe oxygenRating
+
 solve :: Puzzle -> Int
-solve = solvePart1
+solve = fromMaybe 1 . solvePart2
