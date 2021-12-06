@@ -11,8 +11,6 @@ main = do
   case parseResult of
     Right puzz ->
       do
-        print $ "How many puzzles: " ++ (show $ length . boards $ puzz)
-        print $ "The last puzzle: " ++ (show $ boards puzz !! 99)
         print $ show "Bingo state: " ++ (show $ solve puzz)
     Left err ->
       do

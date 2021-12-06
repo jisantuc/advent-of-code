@@ -8,8 +8,9 @@ import Control.Applicative (liftA2)
 import Control.Monad (replicateM)
 import Data.Foldable (foldl')
 import Data.Functor ((<&>))
+import Data.List (sortBy)
 import qualified Data.Map.Strict as M
-import Debug.Trace (trace)
+import Data.Tuple (swap)
 import Parser (Parser)
 import Text.Megaparsec (many, sepBy, sepEndBy)
 import Text.Megaparsec.Char (char, eol)
@@ -42,13 +43,24 @@ data GameState = GameState
     winner :: Maybe (BingoBoard, Int)
   }
 
+chunksOf :: Int -> [a] -> [[a]]
+chunksOf _ [] = []
+chunksOf 0 xs = [xs]
+chunksOf n xs = [take n xs] ++ chunksOf n (drop n xs)
+
+debugBoard :: BingoBoard -> String
+debugBoard BingoBoard {board, checkSquare} =
+  let sorted = sortBy (\(_, coord) (_, coord') -> compare (swap coord) (swap coord')) (M.toList board)
+      withXes = (\(k, (c, r)) -> if checkSquare c r then "x" else show k) <$> sorted
+   in unlines $ unwords <$> chunksOf 5 withXes
+
 mark :: Int -> BingoBoard -> BingoBoard
 mark value bingoBoard = case M.lookup value (board bingoBoard) of
   Nothing -> bingoBoard
   Just (col, row) ->
     let baseCheckSquare = checkSquare bingoBoard
      in bingoBoard
-          { checkSquare = \col' row' -> col' == col && row' == row || baseCheckSquare col' row'
+          { checkSquare = \col' row' -> (col' == col && row' == row) || baseCheckSquare col' row'
           }
 
 checkWinner :: ColNum -> RowNum -> BingoBoard -> Bool
@@ -92,8 +104,8 @@ findWinner :: Int -> Puzzle -> Maybe BingoBoard
 findWinner n (Puzzle {boards}) =
   foldl'
     ( \acc bingo@(BingoBoard {board}) ->
-        case M.lookup n board <&> \(c, r) -> checkWinner c r bingo of
-          Nothing -> Nothing
+        case (\(c, r) -> checkWinner c r bingo) <$> M.lookup n board of
+          Nothing -> acc
           Just False -> acc
           Just True -> Just bingo
     )
@@ -117,20 +129,22 @@ findUnmarkedScore BingoBoard {board, checkSquare} =
         0
         keys
 
-solvePart1 :: Puzzle -> Int
-solvePart1 puzz@(Puzzle {callSequence}) =
-  case foldl'
+evaluateGame :: Puzzle -> GameState
+evaluateGame puzz@(Puzzle {callSequence}) =
+  foldl'
     ( \gameState@(GameState {winner}) call ->
         case winner of
           (Just _) -> gameState
-          Nothing -> trace ("Calling " ++ show call) $ callNumber call gameState
+          Nothing -> callNumber call gameState
     )
     (GameState puzz Nothing)
-    callSequence of
+    callSequence
+
+solvePart1 :: Puzzle -> Int
+solvePart1 puzz =
+  case evaluateGame puzz of
     (GameState _ (Just (b, c))) ->
-      trace ("Winning board: " ++ show b) $
-        trace ("Winning call: " ++ show c) $
-          findUnmarkedScore b * c
+      findUnmarkedScore b * c
     _ -> 0
 
 solve :: Puzzle -> Int
