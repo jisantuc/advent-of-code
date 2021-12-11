@@ -4,7 +4,7 @@ module Day5Spec where
 
 import Data.Text (Text)
 import Data.Void (Void)
-import Day5 (Puzzle, puzzleParser, solvePart1Fast)
+import Day5 (Puzzle, puzzleParser, solvePart1Fast, solvePart2)
 import Parser (parsePuzzle)
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Testing (expectParsed, expectSuccessfulParse)
@@ -16,6 +16,8 @@ spec = describe "day 5 puzzle" $ do
     expectSuccessfulParse (parsePuzzle puzzleParser testPuzzle) False
   it "should get the right answer for part 1" $ do
     expectParsed parsedExample $ \puzz -> solvePart1Fast puzz `shouldBe` 5
+  it "should get the right answer for part 2" $ do
+    expectParsed parsedExample $ \puzz -> solvePart2 puzz `shouldBe` 12
 
 parsedExample :: Either (ParseErrorBundle Text Void) Puzzle
 parsedExample = parsePuzzle puzzleParser testPuzzle
