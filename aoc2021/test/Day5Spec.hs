@@ -4,7 +4,7 @@ module Day5Spec where
 
 import Data.Text (Text)
 import Data.Void (Void)
-import Day5 (Location (..), Puzzle, Segment (..), puzzleParser, reachableFrom, solvePart1)
+import Day5 (Puzzle, puzzleParser, solvePart1Fast)
 import Parser (parsePuzzle)
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Testing (expectParsed, expectSuccessfulParse)
@@ -14,17 +14,8 @@ spec :: Spec
 spec = describe "day 5 puzzle" $ do
   it "should parse at all" $
     expectSuccessfulParse (parsePuzzle puzzleParser testPuzzle) False
-  it "should agree about containment for some simple cases" $ do
-    reachableFrom (Location 0 0) (Segment (Location 0 0) (Location 0 0)) `shouldBe` True
-    reachableFrom (Location 1 1) (Segment (Location 1 0) (Location 1 2)) `shouldBe` True
-    reachableFrom (Location 1 1) (Segment (Location 0 1) (Location 2 1)) `shouldBe` True
-    -- ignoring diagonals
-    reachableFrom (Location 1 1) (Segment (Location 0 0) (Location 2 2)) `shouldBe` False
-  it "should agree about non-containment for some simple cases" $ do
-    reachableFrom (Location 0 0) (Segment (Location 1 1) (Location 2 2)) `shouldBe` False
-    reachableFrom (Location 1 1) (Segment (Location 0 0) (Location 2 1)) `shouldBe` False
   it "should get the right answer for part 1" $ do
-    expectParsed parsedExample $ \puzz -> solvePart1 puzz `shouldBe` 5
+    expectParsed parsedExample $ \puzz -> solvePart1Fast puzz `shouldBe` 5
 
 parsedExample :: Either (ParseErrorBundle Text Void) Puzzle
 parsedExample = parsePuzzle puzzleParser testPuzzle

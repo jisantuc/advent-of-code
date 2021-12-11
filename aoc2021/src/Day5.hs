@@ -5,7 +5,8 @@
 module Day5 where
 
 import Data.Foldable (Foldable (foldl'))
-import Debug (chunksOf)
+import qualified Data.Map.Strict as M
+import Data.Monoid (Sum (..))
 import Parser (Parser)
 import Text.Megaparsec (sepEndBy, skipSome)
 import Text.Megaparsec.Char (char, eol, string)
@@ -15,25 +16,14 @@ newtype XCoord = XCoord Int deriving (Enum, Eq, Num, Ord, Show)
 
 newtype YCoord = YCoord Int deriving (Enum, Eq, Num, Ord, Show)
 
-data Location = Location XCoord YCoord deriving (Eq, Show)
+data Location = Location XCoord YCoord deriving (Eq, Ord, Show)
 
 data Segment = Segment {start :: Location, end :: Location} deriving (Eq, Show)
 
 type Puzzle = [Segment]
 
-reachableFrom :: Location -> Segment -> Bool
-reachableFrom
-  (Location testX testY)
-  (Segment (Location startX startY) (Location endX endY)) =
-    case (compare startY endY, compare startX endX) of
-      (EQ, EQ) -> testX == startX && testY == startY
-      (LT, LT) -> False
-      (LT, EQ) -> testX == startX && startY <= testY && testY <= endY
-      (GT, EQ) -> testX == startX && startY >= testY && testY >= endY
-      (EQ, LT) -> testY == startY && startX <= testX && testX <= endX
-      (EQ, GT) -> testY == startY && startX >= testX && testX >= endX
-      -- this fall through covers diagonals, which are filtered out in the parse
-      _ -> False
+location :: Int -> Int -> Location
+location x y = Location (XCoord x) (YCoord y)
 
 segmentParser :: Parser Segment
 segmentParser =
@@ -66,7 +56,7 @@ isDiagonal (Segment (Location xStart yStart) (Location xEnd yEnd)) =
   xStart /= xEnd && yStart /= yEnd
 
 puzzleParser :: Parser Puzzle
-puzzleParser = filter (not . isDiagonal) <$> segmentParser `sepEndBy` eol
+puzzleParser = segmentParser `sepEndBy` eol
 
 grid :: Puzzle -> [Location]
 grid [] = []
@@ -74,34 +64,32 @@ grid puzz =
   let (xMin, yMin, xMax, yMax) = bbox puzz
    in [Location x y | y <- [yMin .. yMax], x <- [xMin .. xMax]]
 
-solvePart1 :: Puzzle -> Int
-solvePart1 [] = 0
-solvePart1 puzz =
-  let (xMin, yMin, xMax, yMax) = bbox puzz
-      g = [Location x y | y <- [yMin .. yMax], x <- [xMin .. xMax]]
-   in foldl'
-        ( \acc loc ->
-            let coveringSegments = filter (reachableFrom loc) puzz
-             in if length coveringSegments >= 2
-                  then acc + 1
-                  else acc
-        )
-        0
-        g
+mkRange :: (Ord a, Enum a) => a -> a -> [a]
+mkRange a b = case compare a b of
+  EQ -> repeat a
+  LT -> [a .. b]
+  GT -> [b .. a]
 
-debugGrid :: Puzzle -> String
-debugGrid puzz =
-  let (_, _, XCoord xMax, _) = bbox puzz
-      g = grid puzz
-      covering = (\loc -> length $ filter (reachableFrom loc) puzz) <$> g
-      printed =
-        ( \case
-            0 -> "."
-            n -> show n
-        )
-          <$> covering
-      chunked = chunksOf (xMax + 1) printed
-   in unlines $ unwords <$> chunked
+fillPoints :: Segment -> [(Location, Sum Int)]
+fillPoints (Segment (Location xStart yStart) (Location xEnd yEnd)) =
+  let xes = mkRange xStart xEnd
+      yes = mkRange yStart yEnd
+   in (\x -> (x, Sum 1)) <$> zipWith Location xes yes
+
+solvePart1Fast :: Puzzle -> Int
+solvePart1Fast puzz =
+  let intersections =
+        foldl'
+          ( \acc seg ->
+              if (isDiagonal seg)
+                then acc
+                else
+                  let locations = M.fromList $ fillPoints seg
+                   in M.unionWith (<>) acc locations
+          )
+          M.empty
+          puzz
+   in length . M.filter (\x -> x >= 2) $ intersections
 
 solve :: Puzzle -> Int
-solve = solvePart1
+solve = solvePart1Fast
