@@ -11,6 +11,7 @@ import Data.Functor ((<&>))
 import Data.List (sortBy)
 import qualified Data.Map.Strict as M
 import Data.Tuple (swap)
+import Debug (chunksOf)
 import Parser (Parser)
 import Text.Megaparsec (many, sepBy, sepEndBy)
 import Text.Megaparsec.Char (char, eol)
@@ -43,11 +44,6 @@ data GameState = GameState
   { puzzle :: Puzzle,
     winner :: Maybe (BingoBoard, Int)
   }
-
-chunksOf :: Int -> [a] -> [[a]]
-chunksOf _ [] = []
-chunksOf 0 xs = [xs]
-chunksOf n xs = [take n xs] ++ chunksOf n (drop n xs)
 
 debugBoard :: BingoBoard -> String
 debugBoard BingoBoard {board, checkSquare} =
