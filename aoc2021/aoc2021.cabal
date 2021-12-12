@@ -30,6 +30,7 @@ library
       Day3
       Day4
       Day5
+      Day6
       Debug
       Parser
   other-modules:
@@ -70,6 +71,7 @@ test-suite aoc2021-test
       Day3Spec
       Day4Spec
       Day5Spec
+      Day6Spec
       Testing
       Paths_aoc2021
   hs-source-dirs:
