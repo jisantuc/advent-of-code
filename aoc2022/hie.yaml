@@ -1,0 +1,10 @@
+cradle:
+  cabal:
+    - path: "app/main.hs"
+      component: "aoc2022:exe:puzzle"
+
+    - path: "src/Debug.hs"
+      component: "lib:aoc2022"
+
+    - path: "src/Parser.hs"
+      component: "lib:aoc2022"

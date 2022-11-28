@@ -1,0 +1,45 @@
+-- Instructions on how to write this file are in the Cabal
+-- documentation, which can be found here:
+--   http://haskell.org/cabal/release/cabal-latest/doc/users-guide/
+
+name: aoc2022
+version: 1.0.0.2
+license: BSD3
+license-file: LICENSE
+copyright: (c) James Santucci
+author: James Santucci
+maintainer: James Santucci <james.santucci@gmail.com>
+bug-reports: mailto:james.santucci@gmail.com
+stability: stable
+homepage: http://www.github.com/jisantuc/advent-of-code
+synopsis: Advent of Code 2022 solutions
+category: Console, Text
+cabal-version: >= 1.8
+build-type: Simple
+
+Description:
+  Solutions for 2022 Advent of Code solutions
+
+source-repository head
+  type:     git
+  location: https://github.com/jisantuc/advent-of-code
+
+flag threaded
+  default: False
+
+library
+  exposed-modules: Debug
+                 , Parser
+  hs-source-dirs:  src/
+  build-depends:   base >= 4.2 && < 5
+                 , megaparsec
+	         , text
+
+executable puzzle
+  hs-source-dirs: app
+  main-is: main.hs
+  build-depends: base >= 4.2 && < 5
+               , aoc2022
+
+  if flag(threaded)
+     ghc-options: -threaded
