@@ -3,5 +3,3 @@
 set -e
 
 nix-shell -p haskellPackages.implicit-hie --run "gen-hie > hie.yaml"
-
-nix-shell --run "cabal test"

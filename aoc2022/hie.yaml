@@ -1,5 +1,14 @@
 cradle:
   cabal:
+    - path: "test/Spec.hs"
+      component: "aoc2022:test:aoc2022-test"
+
+    - path: "test/Day1Spec.hs"
+      component: "aoc2022:test:aoc2022-test"
+
+    - path: "test/Testing.hs"
+      component: "aoc2022:test:aoc2022-test"
+
     - path: "app/main.hs"
       component: "aoc2022:exe:puzzle"
 
@@ -7,4 +16,7 @@ cradle:
       component: "lib:aoc2022"
 
     - path: "src/Parser.hs"
+      component: "lib:aoc2022"
+
+    - path: "src/Day1.hs"
       component: "lib:aoc2022"

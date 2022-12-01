@@ -8,6 +8,3 @@ type Parser = Parsec Void Text
 
 parsePuzzle :: Parsec e s a -> s -> Either (ParseErrorBundle s e) a
 parsePuzzle parser = runParser parser ""
-
-foo :: Int -> Int
-foo = (+) 3
