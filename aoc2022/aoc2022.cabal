@@ -30,17 +30,19 @@ flag threaded
 library
   exposed-modules: Debug
                  , Parser
-		 , Day1
+    	 , Day1
+    	 , Day2
   hs-source-dirs:  src/
   build-depends:   base >= 4.2 && < 5
                  , megaparsec
-	         , text
+                 , text
 
 executable puzzle
   hs-source-dirs: app
   main-is: main.hs
   build-depends: base >= 4.2 && < 5
-	       , text
+    	       , megaparsec
+               , text
                , aoc2022
 
   if flag(threaded)
@@ -51,6 +53,7 @@ test-suite aoc2022-test
   main-is: Spec.hs
   other-modules:
       Day1Spec
+      Day2Spec
       Testing
       Paths_aoc2022
   hs-source-dirs:
