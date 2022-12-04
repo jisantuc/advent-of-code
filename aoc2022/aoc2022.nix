@@ -7,6 +7,7 @@
 , hspec-discover
 , lib
 , megaparsec
+, raw-strings-qq
 , text
 , vector
 , extraToolDeps ? [ ]
@@ -26,6 +27,7 @@ mkDerivation {
     hspec
     hspec-discover
     megaparsec
+    raw-strings-qq
     text
     vector
   ];

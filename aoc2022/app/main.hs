@@ -2,7 +2,7 @@ module Main (main) where
 
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
-import Day2 (puzzleParser2, solvePart2)
+import Day3 (puzzleParser2, solvePart2)
 import Parser (parsePuzzle)
 import Text.Megaparsec (errorBundlePretty)
 
