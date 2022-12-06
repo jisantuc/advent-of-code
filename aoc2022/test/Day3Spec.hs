@@ -18,7 +18,7 @@ import Text.Megaparsec (ParseErrorBundle)
 import Text.RawString.QQ (r)
 
 spec :: Spec
-spec = describe "day 2 puzzle" $ do
+spec = describe "day 3 puzzle" $ do
   describe "parsing" $ do
     it "parses the puzzle -- part1" $ do
       parsedExample `shouldSatisfy` isRight
