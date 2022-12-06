@@ -38,21 +38,19 @@ fullCovered (ElfPair assignment1 assignment2) =
     `fullCovers` assignment1
 
 partiallyCovered :: ElfPair -> Bool
-partiallyCovered pairing@(ElfPair assignment1 assignment2) =
+partiallyCovered (ElfPair assignment1 assignment2) =
   assignment1 `partialCovers` assignment2
   || assignment2 `partialCovers` assignment1
 
 elfAssignmentParser :: Parser ElfAssignment
 elfAssignmentParser = do
-  start <- Bookend <$> decimal
-  char '-'
+  start <- Bookend <$> decimal <* char '-'
   end <- Bookend <$> decimal
   pure $ ElfAssignment start end
 
 elfPairParser :: Parser ElfPair
 elfPairParser = do
-  assignment1 <- elfAssignmentParser
-  char ','
+  assignment1 <- elfAssignmentParser <* char ','
   ElfPair assignment1 <$> elfAssignmentParser
 
 puzzleParser :: Parser [ElfPair]

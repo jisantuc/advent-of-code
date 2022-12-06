@@ -6,6 +6,7 @@ import Control.Applicative ((<|>))
 import Parser (Parser)
 import Text.Megaparsec (sepEndBy)
 import Text.Megaparsec.Char (char, eol, space)
+import Prelude hiding (round)
 
 data Throw
   = Rock

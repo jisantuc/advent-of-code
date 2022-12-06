@@ -4,12 +4,12 @@
 module Day3 where
 
 import Data.Char (isLower, ord)
-import Data.Foldable (foldl')
 import Data.Monoid (Sum (..))
 import Data.Set (Set, fromList, intersection, union)
 import Parser (Parser)
-import Text.Megaparsec (many, sepEndBy, some)
+import Text.Megaparsec (sepEndBy, some)
 import Text.Megaparsec.Char (eol, letterChar)
+import Prelude hiding (subtract)
 
 newtype Priority = Priority (Sum Int)
   deriving (Eq, Show)
@@ -39,10 +39,8 @@ rucksackParser =
 
 elfTeamParser :: Parser ElfTeam
 elfTeamParser = do
-  r1 <- rucksackParser
-  eol
-  r2 <- rucksackParser
-  eol
+  r1 <- rucksackParser <* eol
+  r2 <- rucksackParser <* eol
   r3 <- rucksackParser
   pure $ ElfTeam (r1, r2, r3)
 
