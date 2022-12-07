@@ -1,19 +1,34 @@
 module Lib.Stack where
 
-import Control.Monad.ST (ST)
-import Data.STRef (STRef, newSTRef, readSTRef, writeSTRef)
-import Data.Vector (Vector, snoc, unsnoc)
+import Data.Foldable (traverse_)
+import Data.IORef (IORef, newIORef, readIORef, writeIORef)
+import Data.Vector (Vector, lastM, snoc, unsnoc)
 import qualified Data.Vector as Vector
+import Control.Monad (replicateM)
+import Data.Maybe (catMaybes)
 
-newtype Stack s a = Stack (STRef s (Vector a)) deriving (Eq)
+newtype Stack a = Stack (IORef (Vector a)) deriving (Eq)
 
-push :: a -> Stack s a -> ST s ()
-push item (Stack ref) = readSTRef ref >>= writeSTRef ref . (`snoc` item)
+push :: a -> Stack a -> IO ()
+push item (Stack ref) = readIORef ref >>= writeIORef ref . (`snoc` item)
 
-pop :: Stack s a -> ST s (Maybe a)
+pop :: Stack a -> IO (Maybe a)
 pop (Stack ref) = do
-  v <- readSTRef ref
-  traverse (\(h, t) -> writeSTRef ref h >> pure t) (unsnoc v)
+  v <- readIORef ref
+  traverse (\(h, t) -> writeIORef ref h >> pure t) (unsnoc v)
 
-empty :: ST s (Stack s a)
-empty = Stack <$> newSTRef Vector.empty
+popSeveral :: Int -> Stack a -> IO [a]
+popSeveral howMany stack = do
+  reverse . catMaybes <$> replicateM howMany (pop stack)
+
+top :: Stack a -> IO (Maybe a)
+top (Stack ref) = lastM <$> readIORef ref
+
+empty :: IO (Stack a)
+empty = Stack <$> newIORef Vector.empty
+
+ofAs :: Traversable t => t a -> IO (Stack a)
+ofAs items = do
+  stack <- empty
+  traverse_ (`push` stack) items
+  pure stack

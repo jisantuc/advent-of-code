@@ -10,7 +10,6 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Void (Void)
 import Day3 (ElfTeam, Priority (..), Rucksack, priority, puzzleParser, puzzleParser2, rucksackParser, scoreRucksack, solvePart1, solvePart2)
-import Debug.Trace (traceShowId)
 import Parser (parsePuzzle)
 import Test.Hspec (Expectation, Spec, describe, it, shouldBe, shouldSatisfy)
 import Testing (expectParsed)
@@ -37,7 +36,7 @@ spec = describe "day 3 puzzle" $ do
        in traverse_
             ( \(puzzLine, score) ->
                 expectParsed (parsePuzzle rucksackParser puzzLine) $ \l ->
-                  scoreRucksack (traceShowId l) `shouldBe` score
+                  scoreRucksack l `shouldBe` score
             )
             lineScorePairs
     it "prioritizes chars from the example correctly" $ do
