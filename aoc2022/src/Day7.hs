@@ -1,12 +1,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Day7 where 
+module Day7 where
 
 import Data.Text (Text, pack)
 import Parser (Parser)
-import Text.Megaparsec (many, notFollowedBy, sepEndBy, some, (<|>))
+import Text.Megaparsec (lookAhead, many, some, someTill, (<|>), eof, withRecovery)
 import Text.Megaparsec.Char (alphaNumChar, eol, space)
 import Text.Megaparsec.Char.Lexer (decimal)
+import Text.Megaparsec.Debug (dbg)
+import Data.Functor (void)
 
 data Directory = RootDir | NamedDir Text | DotDot deriving (Eq, Show)
 
@@ -34,7 +36,7 @@ dirTargetParser =
 
 cdParser :: Parser Instruction
 cdParser =
-  Cd <$> ("cd " *> dirTargetParser)
+  Cd <$> ("cd " *> dirTargetParser) <* eol
 
 dirLineParser :: Parser OutputLine
 dirLineParser = DirectoryLine <$> ("dir " *> dirTargetParser)
@@ -45,7 +47,7 @@ fnameParser =
       extensionParser = "." *> alphaNumString
    in do
         basename <- alphaNumString
-        ext <- extensionParser
+        ext <- withRecovery (const "") extensionParser
         pure $ basename <> "." <> ext
 
 fileLineParser :: Parser OutputLine
@@ -56,15 +58,17 @@ fileLineParser = do
 
 outputLinesParser :: Parser [OutputLine]
 outputLinesParser =
-  (dirLineParser <|> fileLineParser) `sepEndBy` (eol <* notFollowedBy "$ ")
+  someTill
+    ((dirLineParser <|> fileLineParser) <* eol)
+    (void (lookAhead "$ ") <|> eof)
 
 lsParser :: Parser Instruction
 lsParser =
-  Ls <$> ("ls" *> eol *> outputLinesParser)
+  dbg "LsParser" $ Ls <$> ("ls" *> eol *> outputLinesParser)
 
 instructionParser :: Parser Instruction
 instructionParser =
   "$ " *> (cdParser <|> lsParser)
 
 puzzleParser :: Parser [Instruction]
-puzzleParser = instructionParser `sepEndBy` eol
+puzzleParser = some instructionParser

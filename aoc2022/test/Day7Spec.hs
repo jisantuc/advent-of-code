@@ -68,25 +68,30 @@ exampleLsExpectation =
     ]
 
 cdRoot :: Text
-cdRoot = "$ cd /"
+cdRoot = [r|$ cd /
+|]
 
 cdNamed :: Text
-cdNamed = "$ cd a"
+cdNamed = [r|$ cd a
+|]
 
 cdUp :: Text
-cdUp = "$ cd .."
+cdUp = [r|$ cd ..
+|]
 
 exampleLsThenLs :: Text
 exampleLsThenLs =
   [r|$ ls
 dir a
 $ ls
-dir b|]
+dir a
+|]
 
 exampleCdThenCd :: Text
 exampleCdThenCd =
   [r|$ cd a
-$ cd b|]
+$ cd b
+|]
 
 exampleLs :: Text
 exampleLs =
@@ -94,7 +99,8 @@ exampleLs =
 dir a
 14848514 b.txt
 8504156 c.dat
-dir d|]
+dir d
+|]
 
 smallExamplePuzzle :: Text
 smallExamplePuzzle =
@@ -104,7 +110,8 @@ dir a
 14848514 b.txt
 8504156 c.dat
 dir d
-$ cd a|]
+$ cd a
+|]
 
 examplePuzzle :: Text
 examplePuzzle =
