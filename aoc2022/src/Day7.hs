@@ -1,12 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Day7 where
+module Day7 where 
 
-import Data.Map.Strict (Map)
 import Data.Text (Text, pack)
-import Lib.Stack (Stack (..))
 import Parser (Parser)
-import Text.Megaparsec (many, sepBy, try, (<|>))
+import Text.Megaparsec (many, notFollowedBy, sepEndBy, some, (<|>), sepBy)
 import Text.Megaparsec.Char (alphaNumChar, eol, space)
 import Text.Megaparsec.Char.Lexer (decimal)
 
@@ -15,19 +13,18 @@ data Directory = RootDir | NamedDir Text | DotDot deriving (Eq, Show)
 data File = File
   { fileName :: Text,
     fileSize :: Integer
-  } deriving (Eq, Show)
+  }
+  deriving (Eq, Show)
 
 data OutputLine
   = DirectoryLine Directory
-  | FileOutputLine File deriving (Eq, Show)
-
-newtype DirTree = DirTree (Map Directory DirTree) deriving (Eq, Show)
-
-type Workdir = Stack Directory
+  | FileOutputLine File
+  deriving (Eq, Show)
 
 data Instruction
   = Cd Directory
-  | Ls [OutputLine] deriving (Eq, Show)
+  | Ls [OutputLine]
+  deriving (Eq, Show)
 
 dirTargetParser :: Parser Directory
 dirTargetParser =
@@ -37,28 +34,37 @@ dirTargetParser =
 
 cdParser :: Parser Instruction
 cdParser =
-  Cd <$> ("$ cd " *> dirTargetParser)
+  Cd <$> ("cd " *> dirTargetParser)
+
+dirLineParser :: Parser OutputLine
+dirLineParser = DirectoryLine <$> ("dir " *> dirTargetParser)
+
+fnameParser :: Parser Text
+fnameParser =
+  let alphaNumString = pack <$> some alphaNumChar
+      extensionParser = "." *> alphaNumString
+   in do
+        basename <- alphaNumString
+        ext <- extensionParser
+        pure $ basename <> "." <> ext
+
+fileLineParser :: Parser OutputLine
+fileLineParser = do
+  fsize <- decimal <* space
+  fname <- fnameParser
+  pure . FileOutputLine $ File fname fsize
 
 outputLinesParser :: Parser [OutputLine]
 outputLinesParser =
-  let lineParser =
-        DirectoryLine <$> ("dir " *> dirTargetParser)
-          <|> do
-            fSize <- decimal
-            space
-            fName <-
-              pack <$> many alphaNumChar
-                <* try ("." <* many alphaNumChar)
-            pure . FileOutputLine $ File fName fSize
-   in lineParser `sepBy` eol
+  (dirLineParser <|> fileLineParser) `sepBy` (eol <* notFollowedBy "$ ")
 
 lsParser :: Parser Instruction
 lsParser =
-  Ls <$> ("$ ls" *> eol *> outputLinesParser)
+  Ls <$> ("ls" *> eol *> outputLinesParser)
 
 instructionParser :: Parser Instruction
 instructionParser =
-  cdParser <|> lsParser
+  "$ " *> (cdParser <|> lsParser)
 
 puzzleParser :: Parser [Instruction]
-puzzleParser = instructionParser `sepBy` eol
+puzzleParser = instructionParser `sepEndBy` eol

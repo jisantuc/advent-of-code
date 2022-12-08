@@ -6,10 +6,17 @@ module Day7Spec where
 
 import Data.Either (isRight)
 import Data.Text (Text)
-import Day7 (Directory (..), File (..), Instruction (..), OutputLine (..), cdParser, lsParser, puzzleParser)
+import Day7
+  ( Directory (..),
+    File (..),
+    Instruction (..),
+    OutputLine (..),
+    instructionParser,
+    puzzleParser,
+  )
 import Parser (parsePuzzle)
 import Test.Hspec (Spec, describe, it, shouldBe, shouldSatisfy)
-import Text.Megaparsec (errorBundlePretty)
+import Testing (expectParsed)
 import Text.RawString.QQ (r)
 
 spec :: Spec
@@ -19,30 +26,45 @@ spec =
       it "parses the example puzzle" $
         parsePuzzle puzzleParser examplePuzzle `shouldSatisfy` isRight
       it "parses different cd instructions" $ do
-        parsePuzzle cdParser cdRoot `shouldBe` Right (Cd RootDir)
-        parsePuzzle cdParser cdNamed `shouldBe` Right (Cd $ NamedDir "a")
-        parsePuzzle cdParser cdUp `shouldBe` Right (Cd DotDot)
+        parsePuzzle instructionParser cdRoot `shouldBe` Right (Cd RootDir)
+        parsePuzzle instructionParser cdNamed `shouldBe` Right (Cd $ NamedDir "a")
+        parsePuzzle instructionParser cdUp `shouldBe` Right (Cd DotDot)
       it "parses ls output" $
-        parsePuzzle lsParser exampleLs
-          `shouldBe` Right exampleLsExpectation
+        expectParsed
+          (parsePuzzle instructionParser exampleLs)
+          (`shouldBe` exampleLsExpectation)
+      it "parses consecutive ls outputs" $
+        expectParsed
+          (parsePuzzle puzzleParser exampleLsThenLs)
+          ( `shouldBe`
+              [ Ls [DirectoryLine $ NamedDir "a"],
+                Ls [DirectoryLine $ NamedDir "a"]
+              ]
+          )
+      it "parses two cds in a row" $
+        expectParsed
+          (parsePuzzle puzzleParser exampleCdThenCd)
+          ( `shouldBe`
+              [ Cd $ NamedDir "a",
+                Cd $ NamedDir "b"
+              ]
+          )
       it "parses a cd, then an ls" $
-        ( \case
-            Right result ->
-              result
-                `shouldBe` [ Cd RootDir,
-                             exampleLsExpectation,
-                             Cd $ NamedDir "a"
-                           ]
-            Left e -> fail . errorBundlePretty $ e
-        )
+        expectParsed
           (parsePuzzle puzzleParser smallExamplePuzzle)
+          ( `shouldBe`
+              [ Cd RootDir,
+                exampleLsExpectation,
+                Cd $ NamedDir "a"
+              ]
+          )
 
 exampleLsExpectation :: Instruction
 exampleLsExpectation =
   Ls
     [ DirectoryLine (NamedDir "a"),
-      FileOutputLine (File "b" 14848514),
-      FileOutputLine (File "c" 8504156),
+      FileOutputLine (File "b.txt" 14848514),
+      FileOutputLine (File "c.dat" 8504156),
       DirectoryLine (NamedDir "d")
     ]
 
@@ -54,6 +76,18 @@ cdNamed = "$ cd a"
 
 cdUp :: Text
 cdUp = "$ cd .."
+
+exampleLsThenLs :: Text
+exampleLsThenLs =
+  [r|$ ls
+dir a
+$ ls
+dir b|]
+
+exampleCdThenCd :: Text
+exampleCdThenCd =
+  [r|$ cd a
+$ cd b|]
 
 exampleLs :: Text
 exampleLs =
@@ -97,4 +131,5 @@ $ ls
 4060174 j
 8033020 d.log
 5626152 d.ext
-7214296 k|]
+7214296 k
+|]
