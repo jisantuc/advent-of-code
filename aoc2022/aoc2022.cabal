@@ -36,12 +36,14 @@ library
                  , Day4
 		 , Day5
 		 , Day6
+                 , Day7
 		 , Lib.Stack
   hs-source-dirs:  src/
   ghc-options: -Wall -Werror
   build-depends:   base >= 4.2 && < 5
                  , containers
                  , megaparsec
+                 , stm
                  , text
 		 , vector
 
@@ -67,6 +69,7 @@ test-suite aoc2022-test
       Day4Spec
       Day5Spec
       Day6Spec
+      Day7Spec
       Lib.StackSpec
       Testing
       Paths_aoc2022
