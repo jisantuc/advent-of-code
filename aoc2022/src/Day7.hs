@@ -4,7 +4,7 @@ module Day7 where
 
 import Data.Text (Text, pack)
 import Parser (Parser)
-import Text.Megaparsec (many, notFollowedBy, sepEndBy, some, (<|>), sepBy)
+import Text.Megaparsec (many, notFollowedBy, sepEndBy, some, (<|>))
 import Text.Megaparsec.Char (alphaNumChar, eol, space)
 import Text.Megaparsec.Char.Lexer (decimal)
 
@@ -56,7 +56,7 @@ fileLineParser = do
 
 outputLinesParser :: Parser [OutputLine]
 outputLinesParser =
-  (dirLineParser <|> fileLineParser) `sepBy` (eol <* notFollowedBy "$ ")
+  (dirLineParser <|> fileLineParser) `sepEndBy` (eol <* notFollowedBy "$ ")
 
 lsParser :: Parser Instruction
 lsParser =

@@ -4,7 +4,6 @@
 
 module Day7Spec where
 
-import Data.Either (isRight)
 import Data.Text (Text)
 import Day7
   ( Directory (..),
@@ -15,7 +14,7 @@ import Day7
     puzzleParser,
   )
 import Parser (parsePuzzle)
-import Test.Hspec (Spec, describe, it, shouldBe, shouldSatisfy)
+import Test.Hspec (Spec, describe, it, shouldBe)
 import Testing (expectParsed)
 import Text.RawString.QQ (r)
 
@@ -24,7 +23,7 @@ spec =
   describe "day 7" $
     describe "parsing" $ do
       it "parses the example puzzle" $
-        parsePuzzle puzzleParser examplePuzzle `shouldSatisfy` isRight
+        expectParsed (parsePuzzle puzzleParser examplePuzzle) (const (pure ()))
       it "parses different cd instructions" $ do
         parsePuzzle instructionParser cdRoot `shouldBe` Right (Cd RootDir)
         parsePuzzle instructionParser cdNamed `shouldBe` Right (Cd $ NamedDir "a")
