@@ -2,13 +2,13 @@
 
 module Day7 where
 
+import Data.Functor (void)
 import Data.Text (Text, pack)
 import Parser (Parser)
-import Text.Megaparsec (lookAhead, many, some, someTill, (<|>), eof, withRecovery)
+import Text.Megaparsec (eof, lookAhead, many, some, someTill, withRecovery, (<|>))
 import Text.Megaparsec.Char (alphaNumChar, eol, space)
 import Text.Megaparsec.Char.Lexer (decimal)
 import Text.Megaparsec.Debug (dbg)
-import Data.Functor (void)
 
 data Directory = RootDir | NamedDir Text | DotDot deriving (Eq, Show)
 
