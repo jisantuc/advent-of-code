@@ -14,16 +14,17 @@ import Day7
     puzzleParser,
   )
 import Parser (parsePuzzle)
-import Test.Hspec (Spec, describe, it, shouldBe)
+import Test.Hspec (Spec, describe, it, shouldBe, xit, Expectation)
 import Testing (expectParsed)
 import Text.RawString.QQ (r)
 
 spec :: Spec
 spec =
-  describe "day 7" $
+  describe "day 7" $ do
     describe "parsing" $ do
       it "parses the example puzzle" $
-        expectParsed (parsePuzzle puzzleParser examplePuzzle) (const (pure ()))
+        expectParsed (parsePuzzle puzzleParser examplePuzzle) $ \puzz -> do
+          length puzz `shouldBe` 10
       it "parses different cd instructions" $ do
         parsePuzzle instructionParser cdRoot `shouldBe` Right (Cd RootDir)
         parsePuzzle instructionParser cdNamed `shouldBe` Right (Cd $ NamedDir "a")
@@ -57,6 +58,12 @@ spec =
                 Cd $ NamedDir "a"
               ]
           )
+    describe "solvers" $ do
+      describe "instruction handling" $ do
+        describe "cd handling" $ do
+          xit "handles cd .." pass
+          xit "handles cd /" pass
+          xit "handles cd a" pass
 
 exampleLsExpectation :: Instruction
 exampleLsExpectation =
@@ -68,15 +75,18 @@ exampleLsExpectation =
     ]
 
 cdRoot :: Text
-cdRoot = [r|$ cd /
+cdRoot =
+  [r|$ cd /
 |]
 
 cdNamed :: Text
-cdNamed = [r|$ cd a
+cdNamed =
+  [r|$ cd a
 |]
 
 cdUp :: Text
-cdUp = [r|$ cd ..
+cdUp =
+  [r|$ cd ..
 |]
 
 exampleLsThenLs :: Text
@@ -139,3 +149,6 @@ $ ls
 5626152 d.ext
 7214296 k
 |]
+
+pass :: Expectation
+pass = True `shouldBe` True

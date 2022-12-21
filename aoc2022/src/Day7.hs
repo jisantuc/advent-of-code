@@ -1,9 +1,13 @@
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Day7 where
 
-import Data.Functor (void)
+import Data.Functor (void, ($>), (<&>))
+import Data.Map.Strict (Map)
+import qualified Data.Map.Strict as Map
 import Data.Text (Text, pack)
+import Lib.Stack (Stack, ofAs, pop)
 import Parser (Parser)
 import Text.Megaparsec (eof, lookAhead, many, some, someTill, withRecovery, (<|>))
 import Text.Megaparsec.Char (alphaNumChar, eol, space)
@@ -72,3 +76,37 @@ instructionParser =
 
 puzzleParser :: Parser [Instruction]
 puzzleParser = some instructionParser
+
+data FileTree = FileTree
+  { directory :: Directory,
+    files :: [File],
+    subTree :: Map Text FileTree
+  }
+
+data PuzzleState = PuzzleState
+  { tree :: FileTree,
+    workingDirectory :: Stack Directory
+    -- maybe I need to track a _view_ instead of a stack of directories?
+    -- i.e., given some ls output, I need to know how to update tree
+    -- because FileTree is recursive, I should be able to keep stacking Map
+    -- prisms on it for further nested updates
+    -- in that case I no longer need to track workdir, but a FileTree to FileTree
+    -- prism
+    -- ".." handling is maybe harder, so maybe instead I need to be able to convert from
+    -- a Stack to such an optic
+  }
+
+emptyFileTree :: FileTree
+emptyFileTree = FileTree RootDir [] Map.empty
+
+initialState :: IO PuzzleState
+initialState =
+  let initialWorkingDirectory = ofAs [RootDir]
+   in PuzzleState emptyFileTree <$> initialWorkingDirectory
+
+step :: PuzzleState -> Instruction -> IO PuzzleState
+step state (Cd RootDir) = ofAs [RootDir] <&> (\x -> state {workingDirectory = x})
+step _ (Cd (NamedDir _)) = undefined
+step state@(PuzzleState {workingDirectory}) (Cd DotDot) =
+  pop workingDirectory $> state
+step _ _ = undefined

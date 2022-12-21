@@ -1,11 +1,11 @@
 module Lib.Stack where
 
+import Control.Monad (replicateM)
 import Data.Foldable (traverse_)
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
+import Data.Maybe (catMaybes, isNothing)
 import Data.Vector (Vector, lastM, snoc, unsnoc)
 import qualified Data.Vector as Vector
-import Control.Monad (replicateM)
-import Data.Maybe (catMaybes)
 
 newtype Stack a = Stack (IORef (Vector a)) deriving (Eq)
 
@@ -32,3 +32,6 @@ ofAs items = do
   stack <- empty
   traverse_ (`push` stack) items
   pure stack
+
+null :: Stack a -> IO Bool
+null = (isNothing <$>) . top
