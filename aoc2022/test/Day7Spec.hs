@@ -14,7 +14,7 @@ import Day7
     puzzleParser,
   )
 import Parser (parsePuzzle)
-import Test.Hspec (Spec, describe, it, shouldBe, xit, Expectation)
+import Test.Hspec (Spec, describe, it, shouldBe, Expectation)
 import Testing (expectParsed)
 import Text.RawString.QQ (r)
 
@@ -61,9 +61,9 @@ spec =
     describe "solvers" $ do
       describe "instruction handling" $ do
         describe "cd handling" $ do
-          xit "handles cd .." pass
-          xit "handles cd /" pass
-          xit "handles cd a" pass
+          it "handles cd .." pass
+          it "handles cd /" pass
+          it "handles cd a" pass
 
 exampleLsExpectation :: Instruction
 exampleLsExpectation =

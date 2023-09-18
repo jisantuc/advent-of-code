@@ -1,5 +1,5 @@
 { nixpkgs ? import <nixpkgs> { }
-, compiler ? "ghc90"
+, compiler ? "ghc94"
 , extraToolDeps ? [ ]
 }:
 nixpkgs.pkgs.haskell.packages.${compiler}.callPackage ./aoc2022.nix { extraToolDeps = extraToolDeps; }

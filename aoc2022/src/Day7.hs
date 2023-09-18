@@ -14,7 +14,7 @@ import Text.Megaparsec.Char (alphaNumChar, eol, space)
 import Text.Megaparsec.Char.Lexer (decimal)
 import Text.Megaparsec.Debug (dbg)
 
-data Directory = RootDir | NamedDir Text | DotDot deriving (Eq, Show)
+data Directory = RootDir | NamedDir Text | DotDot deriving (Eq, Show, Ord)
 
 data File = File
   { fileName :: Text,
@@ -85,15 +85,8 @@ data FileTree = FileTree
 
 data PuzzleState = PuzzleState
   { tree :: FileTree,
-    workingDirectory :: Stack Directory
-    -- maybe I need to track a _view_ instead of a stack of directories?
-    -- i.e., given some ls output, I need to know how to update tree
-    -- because FileTree is recursive, I should be able to keep stacking Map
-    -- prisms on it for further nested updates
-    -- in that case I no longer need to track workdir, but a FileTree to FileTree
-    -- prism
-    -- ".." handling is maybe harder, so maybe instead I need to be able to convert from
-    -- a Stack to such an optic
+    workingDirectory :: Stack Directory,
+    spaceMap :: Map Directory Int
   }
 
 emptyFileTree :: FileTree
@@ -102,7 +95,7 @@ emptyFileTree = FileTree RootDir [] Map.empty
 initialState :: IO PuzzleState
 initialState =
   let initialWorkingDirectory = ofAs [RootDir]
-   in PuzzleState emptyFileTree <$> initialWorkingDirectory
+   in PuzzleState emptyFileTree <$> initialWorkingDirectory <*> mempty
 
 step :: PuzzleState -> Instruction -> IO PuzzleState
 step state (Cd RootDir) = ofAs [RootDir] <&> (\x -> state {workingDirectory = x})
@@ -110,3 +103,4 @@ step _ (Cd (NamedDir _)) = undefined
 step state@(PuzzleState {workingDirectory}) (Cd DotDot) =
   pop workingDirectory $> state
 step _ _ = undefined
+
