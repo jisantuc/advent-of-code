@@ -34,10 +34,10 @@ library
                  , Day2
                  , Day3
                  , Day4
-		 , Day5
-		 , Day6
+                 , Day5
+                 , Day6
                  , Day7
-		 , Lib.Stack
+                 , Lib.Stack
   hs-source-dirs:  src/
   ghc-options: -Wall -Werror
   build-depends:   base >= 4.2 && < 5
@@ -45,7 +45,7 @@ library
                  , megaparsec
                  , stm
                  , text
-		 , vector
+                 , vector
 
 executable puzzle
   hs-source-dirs: app
@@ -53,7 +53,7 @@ executable puzzle
   build-depends: base >= 4.2 && < 5
                , megaparsec
                , text
-	       , vector
+               , vector
                , aoc2022
 
   if flag(threaded)

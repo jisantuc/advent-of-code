@@ -1,20 +1,28 @@
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 
 module Day7Spec where
 
+import qualified Data.Map as Map
+import qualified Data.Set as Set
 import Data.Text (Text)
 import Day7
   ( Directory (..),
     File (..),
+    FileTree (..),
     Instruction (..),
     OutputLine (..),
+    PuzzleState (..),
+    buildState,
+    emptyFileTree,
+    initialState,
     instructionParser,
     puzzleParser,
+    step,
   )
 import Parser (parsePuzzle)
-import Test.Hspec (Spec, describe, it, shouldBe, Expectation)
+import Test.Hspec (Expectation, Spec, describe, it, shouldBe)
 import Testing (expectParsed)
 import Text.RawString.QQ (r)
 
@@ -59,6 +67,64 @@ spec =
               ]
           )
     describe "solvers" $ do
+      describe "assembling contents map" $ do
+        it "assembles contents for empty file tree" $ do
+          t0 <- initialState
+          t1 <- step t0 $ Ls []
+          t1
+            `shouldBe` ( t0
+                           { directoryContents = Map.singleton "RootDir" [],
+                             trees = Map.singleton "RootDir" emptyFileTree
+                           }
+                       )
+        it "assembles contents for tree with some content" $
+          let outputLine =
+                [ FileOutputLine $ File "f1" 12,
+                  FileOutputLine $ File "f2" 13,
+                  DirectoryLine $ NamedDir "b"
+                ]
+              instruction = Ls outputLine
+           in do
+                t0 <- initialState
+                t1 <- step t0 instruction
+                t1
+                  `shouldBe` ( t0
+                                 { directoryContents = Map.singleton "RootDir" outputLine,
+                                   trees =
+                                     Map.singleton "RootDir" $
+                                       FileTree
+                                         { subTree = Set.singleton "RootDir/b",
+                                           files = [File "f1" 12, File "f2" 13],
+                                           directory = RootDir
+                                         }
+                                 }
+                             )
+      describe "assembling whole puzzle state" $ do
+        it "builds state from a simple puzzle" $ do
+          instructions <- orFail $ parsePuzzle puzzleParser smallExamplePuzzle
+          result <- buildState instructions
+          let ( PuzzleState
+                  { trees
+                  -- workingDirectory,
+                  -- directoryContents,
+                  -- spaceMap
+                  }
+                ) = result
+          trees
+            `shouldBe` Map.singleton
+              "RootDir"
+              ( FileTree
+                  RootDir
+                  [File "b.txt" 14848514, File "c.dat" 8504156]
+                  (Set.fromList ["RootDir/a", "RootDir/d"])
+              )
+        it "builds state from the example puzzle" $ do
+          -- TODO SOLVE IT HERE WOW SO EXCITING
+          -- oh also gotta reimplement fileTreeSize
+          -- instructions <- orFail $ parsePuzzle puzzleParser examplePuzzle
+          -- result <- buildState instructions
+          pass
+
       describe "instruction handling" $ do
         describe "cd handling" $ do
           it "handles cd .." pass
@@ -150,5 +216,12 @@ $ ls
 7214296 k
 |]
 
+simpleExampleTree :: FileTree
+simpleExampleTree = emptyFileTree {files = [File {fileSize = 10, fileName = "foo"}]}
+
 pass :: Expectation
-pass = True `shouldBe` True
+pass = pure ()
+
+orFail :: (Show e) => Either e a -> IO a
+orFail (Right a) = pure a
+orFail (Left e) = fail (show e)
