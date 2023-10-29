@@ -14,7 +14,7 @@ stability: stable
 homepage: http://www.github.com/jisantuc/advent-of-code
 synopsis: Advent of Code 2022 solutions
 category: Console, Text
-cabal-version: >= 1.8
+cabal-version: >= 1.10
 build-type: Simple
 
 Description:

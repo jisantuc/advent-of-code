@@ -1,15 +1,18 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections #-}
 
 module Day7 where
 
-import Data.Foldable (foldlM)
+import Data.Foldable (foldl', foldlM)
 import Data.Functor (void, ($>), (<&>))
+import Data.IORef (IORef, modifyIORef', newIORef, readIORef)
 import Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
+import Data.Monoid (Sum (..))
 import qualified Data.Set as Set
-import Data.Text (Text, pack)
+import Data.Text (Text, pack, unpack)
 import Lib.Stack (Stack, key, ofAs, pop, push, top)
 import Parser (Parser)
 import Text.Megaparsec (eof, lookAhead, many, some, someTill, withRecovery, (<|>))
@@ -17,7 +20,12 @@ import Text.Megaparsec.Char (alphaNumChar, eol, space)
 import Text.Megaparsec.Char.Lexer (decimal)
 import Text.Megaparsec.Debug (dbg)
 
-data Directory = RootDir | NamedDir Text | DotDot deriving (Eq, Show, Ord)
+data Directory = RootDir | NamedDir Text | DotDot deriving (Eq, Ord)
+
+instance Show Directory where
+  show RootDir = "RootDir"
+  show (NamedDir t) = unpack t
+  show DotDot = ".."
 
 data File = File
   { fileName :: Text,
@@ -34,6 +42,41 @@ data Instruction
   = Cd Directory
   | Ls [OutputLine]
   deriving (Eq, Show)
+
+data FileTree = FileTree
+  { directory :: Directory,
+    files :: [File],
+    subTree :: Set.Set Text
+  }
+  deriving (Eq, Show)
+
+data PuzzleState = PuzzleState
+  { trees :: Map Text FileTree,
+    workingDirectory :: Stack Directory,
+    directoryContents :: Map Text [OutputLine],
+    spaceMap :: Map Directory Int
+  }
+
+_sizeOfNode :: Map Text FileTree -> Text -> Integer
+_sizeOfNode nodes k =
+  case Map.lookup k nodes of
+    Just (FileTree {files, subTree}) ->
+      let nodeFileSize = foldl' (+) 0 $ fileSize <$> files
+          subTreeSizes = _sizeOfNode nodes <$> Set.toList subTree
+       in sum (nodeFileSize : subTreeSizes)
+    Nothing -> 0
+
+treeSizes :: Map Text FileTree -> Text -> Map Text Integer
+treeSizes nodes k =
+  case Map.lookup k nodes of
+    Just (FileTree {files, subTree}) ->
+      let nodeFileSize = foldl' (+) 0 $ fileSize <$> files
+          subTreeSizes = _sizeOfNode nodes <$> Set.toList subTree
+       in Map.singleton k $ sum (nodeFileSize : subTreeSizes)
+    Nothing -> Map.empty
+
+fileTreeSizes :: Map Text FileTree -> Map Text Integer
+fileTreeSizes m = Map.unions $ treeSizes m <$> Map.keys m
 
 dirTargetParser :: Parser Directory
 dirTargetParser =
@@ -80,20 +123,6 @@ instructionParser =
 puzzleParser :: Parser [Instruction]
 puzzleParser = some instructionParser
 
-data FileTree = FileTree
-  { directory :: Directory,
-    files :: [File],
-    subTree :: Set.Set Text
-  }
-  deriving (Eq, Show)
-
-data PuzzleState = PuzzleState
-  { trees :: Map Text FileTree,
-    workingDirectory :: Stack Directory,
-    directoryContents :: Map Text [OutputLine],
-    spaceMap :: Map Directory Int
-  }
-
 instance Eq PuzzleState where
   (PuzzleState tree1 _ contents1 spaceMap1) == (PuzzleState tree2 _ contents2 spaceMap2) =
     tree1 == tree2 && contents1 == contents2 && spaceMap1 == spaceMap2
@@ -134,22 +163,75 @@ step state@(PuzzleState {workingDirectory, directoryContents = initialContents, 
       state
         { directoryContents = initialContents <> contentsForDir,
           trees =
-            initialTrees <> Map.singleton normPath (FileTree { files =
-                  ( \case
-                      FileOutputLine f -> [f]
-                      _ -> []
-                  )
-                    =<< output,
-                subTree =
-                  ( \case
-                      DirectoryLine (NamedDir name) -> Set.singleton $ prefix <> name
-                      _ -> Set.empty
-                  )
-                    `foldMap` output,
-                directory = cwd
-              })
+            initialTrees
+              <> Map.singleton
+                normPath
+                ( FileTree
+                    { files =
+                        ( \case
+                            FileOutputLine f -> [f]
+                            _ -> []
+                        )
+                          =<< output,
+                      subTree =
+                        ( \case
+                            DirectoryLine (NamedDir name) -> Set.singleton $ prefix <> name
+                            _ -> Set.empty
+                        )
+                          `foldMap` output,
+                      directory = cwd
+                    }
+                )
         }
 
 buildState :: [Instruction] -> IO PuzzleState
 buildState instructions =
   initialState >>= \state -> foldlM step state instructions
+
+-- for one node:
+--   - add up its own file size
+--   - for each of its children
+--   - check if the child's key is in the cache
+--   - otherwise, pass the child the cache, and calculate the child's size
+--   - add up the children's sizes with the owned file size
+calculateNodeSize ::
+  IORef (Map Text Integer) ->
+  Map Text FileTree ->
+  Text ->
+  IO Integer
+calculateNodeSize directorySizeCache directories nodeKey =
+  case Map.lookup nodeKey directories of
+    Just (FileTree {subTree, files}) ->
+      do
+        cache <- readIORef directorySizeCache
+        case Map.lookup nodeKey cache of
+          Just answer -> pure answer
+          Nothing ->
+            do
+              let ownDirectorySize = foldMap (Sum . fileSize) files
+              childrenSizes <- traverse (fmap Sum . calculateNodeSize directorySizeCache directories) (Set.toList subTree)
+              let out = getSum . mconcat $ ownDirectorySize : childrenSizes
+              modifyIORef' directorySizeCache (Map.union (Map.singleton nodeKey out))
+              pure out
+    Nothing ->
+      pure 0
+
+buildSpaceMap :: PuzzleState -> IO (Map Text Integer)
+buildSpaceMap (PuzzleState {trees}) = do
+  directorySizeCache <- newIORef mempty
+  let kvTuples = Map.toList trees
+  Map.fromList
+    <$> traverse
+      (\case (nodeKey, _) -> (nodeKey,) <$> calculateNodeSize directorySizeCache trees nodeKey)
+      kvTuples
+
+--  find all of the leaf nodes
+--  calculate their sizes
+--  then, in order:
+--
+--  - in ascending order:
+--  - calculate sizes for the leaf trees
+--  - cache those values somewhere (will I get this for free because Haskell?)
+
+solvePart1 :: Int -> Map Text Int -> Int
+solvePart1 limit = Map.foldl' (\acc a -> if a < limit then acc + a else acc) 0

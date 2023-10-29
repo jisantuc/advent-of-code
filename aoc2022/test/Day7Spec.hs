@@ -14,13 +14,16 @@ import Day7
     Instruction (..),
     OutputLine (..),
     PuzzleState (..),
+    buildSpaceMap,
     buildState,
     emptyFileTree,
+    fileTreeSizes,
     initialState,
     instructionParser,
     puzzleParser,
     step,
   )
+import Lib.Stack (key, top)
 import Parser (parsePuzzle)
 import Test.Hspec (Expectation, Spec, describe, it, shouldBe)
 import Testing (expectParsed)
@@ -67,6 +70,31 @@ spec =
               ]
           )
     describe "solvers" $ do
+      describe "treeSizes" $ do
+        it "calculates sizes correctly for an empty tree" $
+          fileTreeSizes Map.empty
+            `shouldBe` Map.empty
+        it "calculates sizes correctly for a tree with only RootDir" $
+          let nodes = Map.singleton "a" (FileTree RootDir [] Set.empty)
+           in fileTreeSizes nodes `shouldBe` Map.singleton "a" 0
+        it "calculates sizes correctly for RootDir + one file" $
+          let nodes = Map.singleton "a" (FileTree RootDir [File "b" 10] Set.empty)
+           in fileTreeSizes nodes `shouldBe` Map.singleton "a" 10
+        it "calculates sizes correctly for RootDir with an empty child" $
+          let nodes =
+                Map.fromList
+                  [ ("a", FileTree RootDir [File "b" 10] (Set.singleton "b")),
+                    ("b", FileTree (NamedDir "b") [] Set.empty)
+                  ]
+           in fileTreeSizes nodes `shouldBe` Map.fromList [("a", 10), ("b", 0)]
+        it "calculates sizes correctly for RootDir with a child with a child" $
+          let nodes =
+                Map.fromList
+                  [ ("a", FileTree RootDir [File "b" 10] (Set.singleton "b")),
+                    ("b", FileTree RootDir [File "b" 10] (Set.singleton "c")),
+                    ("c", FileTree RootDir [File "b" 10] Set.empty)
+                  ]
+           in fileTreeSizes nodes `shouldBe` Map.fromList [("a", 30), ("b", 20), ("c", 10)]
       describe "assembling contents map" $ do
         it "assembles contents for empty file tree" $ do
           t0 <- initialState
@@ -104,10 +132,10 @@ spec =
           instructions <- orFail $ parsePuzzle puzzleParser smallExamplePuzzle
           result <- buildState instructions
           let ( PuzzleState
-                  { trees
-                  -- workingDirectory,
-                  -- directoryContents,
-                  -- spaceMap
+                  { trees,
+                    workingDirectory
+                    -- directoryContents,
+                    -- spaceMap
                   }
                 ) = result
           trees
@@ -118,12 +146,28 @@ spec =
                   [File "b.txt" 14848514, File "c.dat" 8504156]
                   (Set.fromList ["RootDir/a", "RootDir/d"])
               )
+          endingWorkDir <- top workingDirectory
+          endingWorkDir `shouldBe` Just (NamedDir "a")
         it "builds state from the example puzzle" $ do
-          -- TODO SOLVE IT HERE WOW SO EXCITING
-          -- oh also gotta reimplement fileTreeSize
-          -- instructions <- orFail $ parsePuzzle puzzleParser examplePuzzle
-          -- result <- buildState instructions
-          pass
+          instructions <- orFail $ parsePuzzle puzzleParser examplePuzzle
+          result <- buildState instructions
+          let ( PuzzleState
+                  { workingDirectory
+                  }
+                ) = result
+          endingWorkDir <- top workingDirectory
+          endingWorkDir `shouldBe` Just (NamedDir "d")
+          endingKey <- key workingDirectory "/"
+          endingKey `shouldBe` "RootDir/d"
+
+        it "solves the example puzzle with the right answer" $ do
+          instructions <- orFail $ parsePuzzle puzzleParser examplePuzzle
+          puzzleState <- buildState instructions
+          spaceMap <- buildSpaceMap puzzleState
+          Map.lookup "RootDir/a/e" spaceMap `shouldBe` Just 584
+          Map.lookup "RootDir/a" spaceMap `shouldBe` Just 94853
+          Map.lookup "RootDir/d" spaceMap `shouldBe` Just 24933642
+          Map.lookup "RootDir" spaceMap `shouldBe` Just 48381165
 
       describe "instruction handling" $ do
         describe "cd handling" $ do
