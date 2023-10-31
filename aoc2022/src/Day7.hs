@@ -31,7 +31,6 @@ import qualified Data.Map.Strict as Map
 import Data.Monoid (Sum (..))
 import qualified Data.Set as Set
 import Data.Text (Text, pack, unpack)
-import Debug.Trace (trace)
 import Lib.Stack (Stack, key, ofAs, pop, push, top)
 import Parser (Parser)
 import Text.Megaparsec (eof, lookAhead, many, some, someTill, withRecovery, (<|>))
@@ -216,13 +215,12 @@ calculateNodeSize directorySizeCache directories nodeKey =
           Just answer ->
             pure answer
           Nothing ->
-            trace ("MISS" <> unpack nodeKey) $
-              do
-                let ownDirectorySize = foldMap (Sum . fileSize) files
-                childrenSizes <- traverse (fmap Sum . calculateNodeSize directorySizeCache directories) (Set.toList subTree)
-                let out = getSum . mconcat $ ownDirectorySize : childrenSizes
-                modifyIORef' directorySizeCache (Map.union (Map.singleton nodeKey out))
-                pure out
+            do
+              let ownDirectorySize = foldMap (Sum . fileSize) files
+              childrenSizes <- traverse (fmap Sum . calculateNodeSize directorySizeCache directories) (Set.toList subTree)
+              let out = getSum . mconcat $ ownDirectorySize : childrenSizes
+              modifyIORef' directorySizeCache (Map.union (Map.singleton nodeKey out))
+              pure out
     Nothing ->
       pure 0
 
