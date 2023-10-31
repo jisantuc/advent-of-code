@@ -21,6 +21,7 @@ import Day7
     initialState,
     instructionParser,
     puzzleParser,
+    solvePart2,
     step,
   )
 import Lib.Stack (key, top)
@@ -101,8 +102,7 @@ spec =
           t1 <- step t0 $ Ls []
           t1
             `shouldBe` ( t0
-                           { directoryContents = Map.singleton "RootDir" [],
-                             trees = Map.singleton "RootDir" emptyFileTree
+                           { trees = Map.singleton "RootDir" emptyFileTree
                            }
                        )
         it "assembles contents for tree with some content" $
@@ -117,8 +117,7 @@ spec =
                 t1 <- step t0 instruction
                 t1
                   `shouldBe` ( t0
-                                 { directoryContents = Map.singleton "RootDir" outputLine,
-                                   trees =
+                                 { trees =
                                      Map.singleton "RootDir" $
                                        FileTree
                                          { subTree = Set.singleton "RootDir/b",
@@ -168,6 +167,11 @@ spec =
           Map.lookup "RootDir/a" spaceMap `shouldBe` Just 94853
           Map.lookup "RootDir/d" spaceMap `shouldBe` Just 24933642
           Map.lookup "RootDir" spaceMap `shouldBe` Just 48381165
+        it "solve the example puzzle part 2 with the right answer" $ do
+          instructions <- orFail $ parsePuzzle puzzleParser examplePuzzle
+          puzzleState <- buildState instructions
+          answer <- solvePart2 puzzleState
+          answer `shouldBe` 24933642
 
       describe "instruction handling" $ do
         describe "cd handling" $ do

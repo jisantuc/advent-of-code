@@ -3,7 +3,25 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TupleSections #-}
 
-module Day7 where
+module Day7
+  ( Directory (..),
+    File (..),
+    FileTree (..),
+    Instruction (..),
+    OutputLine (..),
+    PuzzleState (..),
+    buildSpaceMap,
+    buildState,
+    emptyFileTree,
+    fileTreeSizes,
+    initialState,
+    instructionParser,
+    puzzleParser,
+    solvePart1,
+    solvePart2,
+    step,
+  )
+where
 
 import Data.Foldable (foldl', foldlM)
 import Data.Functor (void, ($>), (<&>))
@@ -13,6 +31,7 @@ import qualified Data.Map.Strict as Map
 import Data.Monoid (Sum (..))
 import qualified Data.Set as Set
 import Data.Text (Text, pack, unpack)
+import Debug.Trace (trace)
 import Lib.Stack (Stack, key, ofAs, pop, push, top)
 import Parser (Parser)
 import Text.Megaparsec (eof, lookAhead, many, some, someTill, withRecovery, (<|>))
@@ -53,7 +72,6 @@ data FileTree = FileTree
 data PuzzleState = PuzzleState
   { trees :: Map Text FileTree,
     workingDirectory :: Stack Directory,
-    directoryContents :: Map Text [OutputLine],
     spaceMap :: Map Directory Int
   }
 
@@ -124,15 +142,13 @@ puzzleParser :: Parser [Instruction]
 puzzleParser = some instructionParser
 
 instance Eq PuzzleState where
-  (PuzzleState tree1 _ contents1 spaceMap1) == (PuzzleState tree2 _ contents2 spaceMap2) =
-    tree1 == tree2 && contents1 == contents2 && spaceMap1 == spaceMap2
+  (PuzzleState tree1 _ spaceMap1) == (PuzzleState tree2 _ spaceMap2) =
+    tree1 == tree2 && spaceMap1 == spaceMap2
 
 instance Show PuzzleState where
-  show (PuzzleState {trees, directoryContents, spaceMap}) =
+  show (PuzzleState {trees, spaceMap}) =
     "Tree "
       <> show trees
-      <> ";\n Contents: "
-      <> show directoryContents
       <> ";\n Space map: "
       <> show spaceMap
 
@@ -142,7 +158,7 @@ emptyFileTree = FileTree RootDir [] Set.empty
 initialState :: IO PuzzleState
 initialState =
   let initialWorkingDirectory = ofAs [RootDir]
-   in PuzzleState Map.empty <$> initialWorkingDirectory <*> mempty <*> mempty
+   in PuzzleState Map.empty <$> initialWorkingDirectory <*> mempty
 
 step :: PuzzleState -> Instruction -> IO PuzzleState
 step state (Cd RootDir) = ofAs [RootDir] <&> (\x -> state {workingDirectory = x})
@@ -151,18 +167,16 @@ step state (Cd namedDir@(NamedDir _)) =
    in push namedDir workdir $> state
 step state@(PuzzleState {workingDirectory}) (Cd DotDot) =
   pop workingDirectory $> state
-step state@(PuzzleState {workingDirectory, directoryContents = initialContents, trees = initialTrees}) (Ls output) =
+step state@(PuzzleState {workingDirectory, trees = initialTrees}) (Ls output) =
   do
     -- this is fine, because we always at least have a RootDir,
     -- it just _looks_ horrifying
     Just cwd <- top workingDirectory
     normPath <- pack <$> key workingDirectory "/"
     let prefix = normPath <> "/"
-    let contentsForDir = Map.singleton normPath output
     pure $
       state
-        { directoryContents = initialContents <> contentsForDir,
-          trees =
+        { trees =
             initialTrees
               <> Map.singleton
                 normPath
@@ -188,12 +202,6 @@ buildState :: [Instruction] -> IO PuzzleState
 buildState instructions =
   initialState >>= \state -> foldlM step state instructions
 
--- for one node:
---   - add up its own file size
---   - for each of its children
---   - check if the child's key is in the cache
---   - otherwise, pass the child the cache, and calculate the child's size
---   - add up the children's sizes with the owned file size
 calculateNodeSize ::
   IORef (Map Text Integer) ->
   Map Text FileTree ->
@@ -205,14 +213,16 @@ calculateNodeSize directorySizeCache directories nodeKey =
       do
         cache <- readIORef directorySizeCache
         case Map.lookup nodeKey cache of
-          Just answer -> pure answer
+          Just answer ->
+            pure answer
           Nothing ->
-            do
-              let ownDirectorySize = foldMap (Sum . fileSize) files
-              childrenSizes <- traverse (fmap Sum . calculateNodeSize directorySizeCache directories) (Set.toList subTree)
-              let out = getSum . mconcat $ ownDirectorySize : childrenSizes
-              modifyIORef' directorySizeCache (Map.union (Map.singleton nodeKey out))
-              pure out
+            trace ("MISS" <> unpack nodeKey) $
+              do
+                let ownDirectorySize = foldMap (Sum . fileSize) files
+                childrenSizes <- traverse (fmap Sum . calculateNodeSize directorySizeCache directories) (Set.toList subTree)
+                let out = getSum . mconcat $ ownDirectorySize : childrenSizes
+                modifyIORef' directorySizeCache (Map.union (Map.singleton nodeKey out))
+                pure out
     Nothing ->
       pure 0
 
@@ -225,13 +235,26 @@ buildSpaceMap (PuzzleState {trees}) = do
       (\case (nodeKey, _) -> (nodeKey,) <$> calculateNodeSize directorySizeCache trees nodeKey)
       kvTuples
 
---  find all of the leaf nodes
---  calculate their sizes
---  then, in order:
---
---  - in ascending order:
---  - calculate sizes for the leaf trees
---  - cache those values somewhere (will I get this for free because Haskell?)
+solvePart1 :: PuzzleState -> IO Integer
+solvePart1 state = do
+  spaceMap <- buildSpaceMap state
+  let withoutOver100k = Map.filter (< 100000) spaceMap
+  let justValues = snd <$> Map.toList withoutOver100k
+  pure $ sum justValues
 
-solvePart1 :: Int -> Map Text Int -> Int
-solvePart1 limit = Map.foldl' (\acc a -> if a < limit then acc + a else acc) 0
+solvePart2 :: PuzzleState -> IO Integer
+solvePart2 state =
+  let updateSize = 30000000
+      diskSize = 70000000
+   in do
+        spaceMap <- buildSpaceMap state
+        totalUsed <- case Map.lookup "RootDir" spaceMap of
+          Just a -> pure a
+          Nothing -> fail "oh no"
+        let freeSpaceAvailable = diskSize - totalUsed
+        let requiredFileSize = updateSize - freeSpaceAvailable
+        let overLimit = Map.filter (>= requiredFileSize) spaceMap
+        let justValues = snd <$> Map.toList overLimit
+        case justValues of
+          [] -> pure (-1)
+          xs -> pure $ minimum xs
