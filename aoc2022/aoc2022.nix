@@ -8,7 +8,6 @@
 , lib
 , megaparsec
 , raw-strings-qq
-, stm
 , text
 , vector
 , extraToolDeps ? [ ]
@@ -19,7 +18,7 @@ mkDerivation {
   src = ./.;
   isLibrary = true;
   isExecutable = true;
-  libraryHaskellDepends = [ base containers megaparsec stm text vector ];
+  libraryHaskellDepends = [ base containers megaparsec text vector ];
   libraryToolDepends = [ hpack glibc ];
   executableHaskellDepends = [ base containers megaparsec text vector ];
   testHaskellDepends = [
