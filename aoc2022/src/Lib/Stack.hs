@@ -39,7 +39,10 @@ key :: (Show a) => Stack a -> String -> IO String
 key (Stack ref) separator =
   readIORef ref <&> \vec ->
     let asList = show <$> Vector.toList vec
-        withSeparator = if List.null asList then ["/"] else List.intersperse separator asList
+        withSeparator =
+          if List.null asList
+            then [separator]
+            else List.intersperse separator asList
      in mconcat withSeparator
 
 null :: Stack a -> IO Bool
