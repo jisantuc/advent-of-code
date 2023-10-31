@@ -21,6 +21,9 @@ cradle:
     - path: "test/Day6Spec.hs"
       component: "aoc2022:test:aoc2022-test"
 
+    - path: "test/Day7Spec.hs"
+      component: "aoc2022:test:aoc2022-test"
+
     - path: "test/Lib/StackSpec.hs"
       component: "aoc2022:test:aoc2022-test"
 
@@ -52,6 +55,9 @@ cradle:
       component: "lib:aoc2022"
 
     - path: "src/Day6.hs"
+      component: "lib:aoc2022"
+
+    - path: "src/Day7.hs"
       component: "lib:aoc2022"
 
     - path: "src/Lib/Stack.hs"
