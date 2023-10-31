@@ -1,58 +1,10 @@
 cradle:
   cabal:
-    - path: "test/Spec.hs"
-      component: "aoc2022:test:aoc2022-test"
-
-    - path: "test/Day1Spec.hs"
-      component: "aoc2022:test:aoc2022-test"
-
-    - path: "test/Day2Spec.hs"
-      component: "aoc2022:test:aoc2022-test"
-
-    - path: "test/Day3Spec.hs"
-      component: "aoc2022:test:aoc2022-test"
-
-    - path: "test/Day4Spec.hs"
-      component: "aoc2022:test:aoc2022-test"
-
-    - path: "test/Day5Spec.hs"
-      component: "aoc2022:test:aoc2022-test"
-
-    - path: "test/Day6Spec.hs"
-      component: "aoc2022:test:aoc2022-test"
-
-    - path: "test/Lib/StackSpec.hs"
-      component: "aoc2022:test:aoc2022-test"
-
-    - path: "test/Testing.hs"
-      component: "aoc2022:test:aoc2022-test"
+    - path: "src/"
+      component: "lib:aoc2022"
 
     - path: "app/main.hs"
       component: "aoc2022:exe:puzzle"
 
-    - path: "src/Debug.hs"
-      component: "lib:aoc2022"
-
-    - path: "src/Parser.hs"
-      component: "lib:aoc2022"
-
-    - path: "src/Day1.hs"
-      component: "lib:aoc2022"
-
-    - path: "src/Day2.hs"
-      component: "lib:aoc2022"
-
-    - path: "src/Day3.hs"
-      component: "lib:aoc2022"
-
-    - path: "src/Day4.hs"
-      component: "lib:aoc2022"
-
-    - path: "src/Day5.hs"
-      component: "lib:aoc2022"
-
-    - path: "src/Day6.hs"
-      component: "lib:aoc2022"
-
-    - path: "src/Lib/Stack.hs"
-      component: "lib:aoc2022"
+    - path: "test"
+      component: "aoc2022:test:aoc2022-test"

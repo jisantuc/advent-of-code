@@ -1,11 +1,13 @@
 module Lib.Stack where
 
+import Control.Monad (replicateM)
 import Data.Foldable (traverse_)
+import Data.Functor ((<&>))
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
+import qualified Data.List as List
+import Data.Maybe (catMaybes, isNothing)
 import Data.Vector (Vector, lastM, snoc, unsnoc)
 import qualified Data.Vector as Vector
-import Control.Monad (replicateM)
-import Data.Maybe (catMaybes)
 
 newtype Stack a = Stack (IORef (Vector a)) deriving (Eq)
 
@@ -27,8 +29,21 @@ top (Stack ref) = lastM <$> readIORef ref
 empty :: IO (Stack a)
 empty = Stack <$> newIORef Vector.empty
 
-ofAs :: Traversable t => t a -> IO (Stack a)
+ofAs :: (Traversable t) => t a -> IO (Stack a)
 ofAs items = do
   stack <- empty
   traverse_ (`push` stack) items
   pure stack
+
+key :: (Show a) => Stack a -> String -> IO String
+key (Stack ref) separator =
+  readIORef ref <&> \vec ->
+    let asList = show <$> Vector.toList vec
+        withSeparator =
+          if List.null asList
+            then [separator]
+            else List.intersperse separator asList
+     in mconcat withSeparator
+
+null :: Stack a -> IO Bool
+null = (isNothing <$>) . top

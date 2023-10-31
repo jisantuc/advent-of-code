@@ -1,9 +1,12 @@
-{ nixpkgs ? import <nixpkgs> { }, compiler ? "ghc90" }:
+{ nixpkgs ? import <nixpkgs> { }, compiler ? "ghc94" }:
 (import ./default.nix {
   extraToolDeps = [
     nixpkgs.cabal-install
-    nixpkgs.ormolu
-    nixpkgs.haskellPackages.haskell-language-server
-    nixpkgs.haskell.compiler.ghc90
+    nixpkgs.haskell.compiler.${compiler}
+    nixpkgs.haskell.packages.${compiler}.haskell-language-server
+    nixpkgs.haskell.packages.${compiler}.haskell-dap
+    nixpkgs.haskell.packages.${compiler}.haskell-debug-adapter
+    nixpkgs.haskell.packages.${compiler}.hlint
+    nixpkgs.haskell.packages.${compiler}.ormolu
   ]; inherit nixpkgs compiler;
 }).env
