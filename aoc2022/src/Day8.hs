@@ -3,16 +3,24 @@
 
 module Day8 where
 
+import Data.Char (digitToInt)
 import Data.Foldable (foldl')
 import qualified Data.Set as Set
+import Data.Text (Text)
+import qualified Data.Text as Text
 import Data.Tuple (swap)
 import Data.Vector ((!))
 import qualified Data.Vector as Vector
 
--- list of rows --
 newtype Grid = Grid (Vector.Vector (Vector.Vector Int))
   deriving
     (Eq, Show)
+
+fromText :: Text -> Grid
+fromText input =
+  let charList = Text.unpack <$> Text.lines input
+      asInts = (digitToInt <$>) <$> charList
+   in Grid $ Vector.fromList (Vector.fromList <$> asInts)
 
 type Point = (Int, Int)
 
