@@ -7,6 +7,7 @@
 , hspec-discover
 , lib
 , megaparsec
+, parallel
 , raw-strings-qq
 , text
 , vector
@@ -18,15 +19,16 @@ mkDerivation {
   src = ./.;
   isLibrary = true;
   isExecutable = true;
-  libraryHaskellDepends = [ base containers megaparsec text vector ];
+  libraryHaskellDepends = [ base containers megaparsec parallel text vector ];
   libraryToolDepends = [ hpack glibc ];
-  executableHaskellDepends = [ base containers megaparsec text vector ];
+  executableHaskellDepends = [ base containers megaparsec parallel text vector ];
   testHaskellDepends = [
     base
     containers
     hspec
     hspec-discover
     megaparsec
+    parallel
     raw-strings-qq
     text
     vector

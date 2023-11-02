@@ -7,9 +7,14 @@ import Day8
     FromTop (..),
     Grid (..),
     solvePart1,
+    solvePart2,
     transpose,
+    visibleTreesAbove,
+    visibleTreesBelow,
     visibleTreesFromSide,
     visibleTreesFromTopBottom,
+    visibleTreesToLeft,
+    visibleTreesToRight,
   )
 import Test.Hspec (Spec, describe, it, shouldBe)
 
@@ -22,6 +27,7 @@ spec =
         transpose transposedSmallGrid `shouldBe` smallGrid
         transpose (transpose smallGrid) `shouldBe` smallGrid
         transpose (transpose transposedSmallGrid) `shouldBe` transposedSmallGrid
+    describe "part 1" $ do
       it "finds the right visible trees from the left and right" $ do
         visibleTreesFromSide LeftSide exampleGrid 0
           `shouldBe` Set.fromList [(0, 0), (0, 3)]
@@ -46,6 +52,22 @@ spec =
           `shouldBe` Set.fromList [(4, 4), (3, 4)]
       it "finds the right answer for the example puzzle" $ do
         solvePart1 exampleGrid `shouldBe` 21
+    describe "part 2" $ do
+      describe "directional viewshed" $ do
+        it "finds the right number of visible trees to the right for examples" $ do
+          visibleTreesToRight (1, 2) exampleGrid `shouldBe` 2
+          visibleTreesToRight (3, 2) exampleGrid `shouldBe` 2
+        it "finds the right number of visible trees to the left for examples" $ do
+          visibleTreesToLeft (1, 2) exampleGrid `shouldBe` 1
+          visibleTreesToLeft (3, 2) exampleGrid `shouldBe` 2
+        it "finds the right number of visible trees going up for examples" $ do
+          visibleTreesAbove (1, 2) exampleGrid `shouldBe` 1
+          visibleTreesAbove (3, 2) exampleGrid `shouldBe` 2
+        it "finds the right number of visible trees going down for examples" $ do
+          visibleTreesBelow (1, 2) exampleGrid `shouldBe` 2
+          visibleTreesBelow (3, 2) exampleGrid `shouldBe` 1
+        it "gets the right answer for the example puzzle" $ do
+          solvePart2 exampleGrid `shouldBe` 8
 
 smallGrid :: Grid
 smallGrid =

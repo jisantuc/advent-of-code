@@ -3,6 +3,7 @@
 
 module Day8 where
 
+import Control.Parallel.Strategies (parMap, rpar)
 import Data.Char (digitToInt)
 import Data.Foldable (foldl')
 import qualified Data.Set as Set
@@ -70,6 +71,54 @@ visibleTreesFromTopBottom Bottom g =
   Set.map swap
     . visibleTreesFromSide RightSide (transpose g)
 
+countVisibleTrees :: Int -> Vector.Vector Int -> Int
+countVisibleTrees maxHeight neighbors =
+  let zero = (-1, 0)
+   in snd $
+        Vector.foldl'
+          ( \acc@(maxSeen, count) tree ->
+              if maxSeen >= maxHeight
+                then acc
+                else
+                  if tree <= maxHeight
+                    || ( maxSeen < maxHeight
+                           && tree >= maxHeight
+                       )
+                    then (tree `max` maxSeen, count + 1)
+                    else (maxSeen, count)
+          )
+          zero
+          neighbors
+
+visibleTreesToRight :: Point -> Grid -> Int
+visibleTreesToRight p@(r, c) g@(Grid v) =
+  let row = v ! r
+      pastIdx = Vector.drop (c + 1) row
+      maxHeight = g `atPoint` p
+   in countVisibleTrees maxHeight pastIdx
+
+visibleTreesBelow :: Point -> Grid -> Int
+visibleTreesBelow p g =
+  visibleTreesToRight (swap p) (transpose g)
+
+visibleTreesToLeft :: Point -> Grid -> Int
+visibleTreesToLeft p@(r, c) g@(Grid v) =
+  let row = v ! r
+      rowUpToColumn = Vector.take c row
+      reversed = Vector.reverse rowUpToColumn
+      maxHeight = g `atPoint` p
+   in countVisibleTrees maxHeight reversed
+
+visibleTreesAbove :: Point -> Grid -> Int
+visibleTreesAbove p g = visibleTreesToLeft (swap p) (transpose g)
+
+scenicScore :: Grid -> Point -> Int
+scenicScore g p =
+  visibleTreesAbove p g
+    * visibleTreesBelow p g
+    * visibleTreesToRight p g
+    * visibleTreesToLeft p g
+
 solvePart1 :: Grid -> Int
 solvePart1 g@(Grid v) =
   let nRows = length v
@@ -93,3 +142,11 @@ solvePart1 g@(Grid v) =
             )
             Set.empty
             colIndices
+
+solvePart2 :: Grid -> Int
+solvePart2 g@(Grid v) =
+  let nRows = length v
+      nCols = length $ v ! 0
+      pointGrid = (,) <$> [0 .. nRows - 1] <*> [0 .. nCols - 1]
+      scores = parMap rpar (scenicScore g) pointGrid
+   in maximum scores

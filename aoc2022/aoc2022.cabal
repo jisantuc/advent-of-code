@@ -41,17 +41,19 @@ library
                  , Lib.Stack
   hs-source-dirs:  src/
   ghc-options: -Wall -Werror
-  build-depends:   base >= 4.2 && < 5
+  build-depends:   base >= 4.17 && < 5
                  , containers
                  , megaparsec
+                 , parallel
                  , text
                  , vector
 
 executable puzzle
   hs-source-dirs: app
   main-is: main.hs
-  build-depends: base >= 4.2 && < 5
+  build-depends: base >= 4.17 && < 5
                , megaparsec
+               , parallel
                , text
                , vector
                , aoc2022
@@ -79,7 +81,7 @@ test-suite aoc2022-test
   ghc-options: -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aoc2022
-    , base >=4.7 && <5
+    , base >=4.17 && <5
     , containers
     , hspec
     , hspec-discover
