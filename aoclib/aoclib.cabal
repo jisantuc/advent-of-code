@@ -1,0 +1,50 @@
+cabal-version:   3.0
+name:            aoclib
+version:         0.1.0.0
+
+-- description:
+
+license:         MIT
+
+-- The file containing the license text.
+license-file:    LICENSE
+
+-- The package author(s).
+author:          James Santucci
+
+-- An email address to which users can send suggestions, bug reports, and patches.
+maintainer:      james.santucci@gmail.com
+category:        Development
+build-type:      Simple
+
+-- Extra doc files to be distributed with the package, such as a CHANGELOG or a README.
+extra-doc-files: CHANGELOG.md
+
+common warnings
+        ghc-options: -Wall
+
+library
+        import:           warnings
+        exposed-modules:
+                Data.Grid.Rectangular
+                MyLib
+        build-depends:    base ^>=4.17.2.1
+        hs-source-dirs:   src
+        default-language: Haskell2010
+        
+        -- Modules included in this library but not exported.
+        -- other-modules:
+        
+
+test-suite aoclib-test
+        import:           warnings
+        default-language: Haskell2010
+        type:             exitcode-stdio-1.0
+        hs-source-dirs:   test
+        other-modules:    Data.Grid.RectangularSpec
+        main-is:          Spec.hs
+        
+        -- Test dependencies.
+        build-depends:
+                , aoclib
+                , base    ^>=4.17.2.1
