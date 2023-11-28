@@ -1,0 +1,56 @@
+cabal-version:   3.0
+name:            aoc2023
+version:         0.1.0.0
+license:         MIT
+license-file:    LICENSE
+author:          James Santucci
+maintainer:      james.santucci@gmail.com
+copyright:       2023
+category:        Game
+build-type:      Simple
+extra-doc-files: CHANGELOG.md
+
+common warnings
+        ghc-options: -Wall
+
+library
+        import:           warnings
+        exposed-modules:  MyLib
+        build-depends:
+                , aoclib
+                , base    ^>=4.17.2.1
+        
+        hs-source-dirs:   src
+        default-language: Haskell2010
+
+executable aoc2023
+        import:           warnings
+        main-is:          Main.hs
+        
+        -- other-modules:
+        -- other-extensions:
+        build-depends:
+                , aoc2023
+                , aoclib
+                , base                  ^>=4.17.2.1
+                , bytestring
+                , mtl
+                , optparse-applicative
+        
+        hs-source-dirs:   app
+        default-language: Haskell2010
+
+test-suite aoc2023-test
+        import:           warnings
+        default-language: Haskell2010
+        
+        -- other-modules:
+        -- other-extensions:
+        type:             exitcode-stdio-1.0
+        hs-source-dirs:   test
+        main-is:          Spec.hs
+        build-depends:
+                , aoc2023
+                , aoclib
+                , base     ^>=4.17.2.1
+                , hspec
