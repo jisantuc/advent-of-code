@@ -3,8 +3,8 @@ module Day1 where
 import AoC.Parser (Parser)
 import Data.Foldable (foldl')
 import Text.Megaparsec (sepBy, sepEndBy)
-import Text.Megaparsec.Char (eol)
-import Text.Megaparsec.Char.Lexer (decimal)
+import Text.Megaparsec.Byte (eol)
+import Text.Megaparsec.Byte.Lexer (decimal)
 
 type CalorieCount = Int
 

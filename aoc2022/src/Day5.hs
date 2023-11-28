@@ -9,8 +9,8 @@ import Data.Foldable (traverse_)
 import Data.Maybe (catMaybes, mapMaybe)
 import Lib.Stack (Stack, ofAs, pop, popSeveral, push, top)
 import Text.Megaparsec (sepBy, sepEndBy, (<|>))
-import Text.Megaparsec.Char (char, eol, spaceChar, string, upperChar)
-import Text.Megaparsec.Char.Lexer (decimal)
+import Text.Megaparsec.Byte (char, eol, spaceChar, string, upperChar)
+import Text.Megaparsec.Byte.Lexer (decimal)
 
 newtype Puzzle = Puzzle [Stack Char] deriving (Eq)
 

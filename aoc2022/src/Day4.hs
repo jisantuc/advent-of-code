@@ -2,8 +2,8 @@ module Day4 where
 
 import AoC.Parser (Parser)
 import Text.Megaparsec (sepEndBy)
-import Text.Megaparsec.Char (char, eol)
-import Text.Megaparsec.Char.Lexer (decimal)
+import Text.Megaparsec.Byte (char, eol)
+import Text.Megaparsec.Byte.Lexer (decimal)
 
 newtype Bookend = Bookend Int deriving (Eq, Ord, Show)
 

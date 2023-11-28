@@ -6,11 +6,11 @@
         "utils": "utils"
       },
       "locked": {
-        "lastModified": 1701148209,
-        "narHash": "sha256-SZ9R4FoLCKS1cKa6ssLh9qZ1mqapxYNSzv3/U0Nxj4k=",
+        "lastModified": 1701149627,
+        "narHash": "sha256-GXzBPJaiThVvtxm4bEplZy12E4/dL5Y5j0JszP/DwSU=",
         "ref": "refs/heads/main",
-        "rev": "105aa85a3243d015dde37b4c397c1b7f80b4242f",
-        "revCount": 6,
+        "rev": "28134a443078dc15389236cb5745f769cb35239d",
+        "revCount": 7,
         "type": "git",
         "url": "file:///home/james/gitdirs/aoclib"
       },

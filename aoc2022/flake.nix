@@ -12,11 +12,10 @@
           pkgs = nixpkgs.legacyPackages.${system};
           compiler = "ghc94";
           haskellPackages = pkgs.haskell.packages.${compiler}.extend (final: prev: {
-            aoclibcore = aoclib.packages.${system}.core;
-            aoclibtesting = aoclib.packages.${system}.testing;
+            aoclib = aoclib.packages.${system}.default;
           });
           packageDependencies = (ps: [
-            ps.aoclibcore
+            ps.aoclib
             ps.containers
             ps.megaparsec
             ps.parallel

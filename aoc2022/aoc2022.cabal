@@ -43,7 +43,7 @@ library
         hs-source-dirs:  src/
         ghc-options:     -Wall -Werror
         build-depends:
-                , aoclibcore
+                , aoclib
                 , base        >=4.17 && <5
                 , containers
                 , megaparsec
@@ -57,7 +57,7 @@ executable puzzle
         main-is:        main.hs
         build-depends:
                 , aoc2022
-                , aoclibcore
+                , aoclib
                 , base        >=4.17 && <5
                 , megaparsec
                 , parallel
@@ -87,7 +87,7 @@ test-suite aoc2022-test
         ghc-options:      -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
         build-depends:
                 , aoc2022
-                , aoclibcore
+                , aoclib
                 , base            >=4.17 && <5
                 , containers
                 , hspec
