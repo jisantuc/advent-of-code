@@ -3,11 +3,11 @@
 
 module Day5 where
 
+import AoC.Parser (Parser)
 import Control.Monad (replicateM_)
 import Data.Foldable (traverse_)
 import Data.Maybe (catMaybes, mapMaybe)
 import Lib.Stack (Stack, ofAs, pop, popSeveral, push, top)
-import Parser (Parser)
 import Text.Megaparsec (sepBy, sepEndBy, (<|>))
 import Text.Megaparsec.Char (char, eol, spaceChar, string, upperChar)
 import Text.Megaparsec.Char.Lexer (decimal)

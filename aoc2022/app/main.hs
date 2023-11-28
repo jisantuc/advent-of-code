@@ -1,10 +1,10 @@
 module Main (main) where
 
+import AoC.Parser (parsePuzzle)
 import qualified Data.Text as T
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text
 import Day8 (fromText, solvePart2)
-import Parser (parsePuzzle)
 import Text.Megaparsec (errorBundlePretty)
 
 main :: IO ()

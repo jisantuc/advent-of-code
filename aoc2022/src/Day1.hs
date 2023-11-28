@@ -1,7 +1,7 @@
 module Day1 where
 
+import AoC.Parser (Parser)
 import Data.Foldable (foldl')
-import Parser (Parser)
 import Text.Megaparsec (sepBy, sepEndBy)
 import Text.Megaparsec.Char (eol)
 import Text.Megaparsec.Char.Lexer (decimal)
@@ -24,7 +24,7 @@ solvePart1 :: Puzzle -> Int
 solvePart1 =
   foldl' (\acc cals -> let total = sum cals in max total acc) 0
 
-insertItem :: Ord a => [a] -> a -> [a]
+insertItem :: (Ord a) => [a] -> a -> [a]
 insertItem [] item = [item]
 insertItem items@(h : t) item =
   if item > h then item : items else h : insertItem t item

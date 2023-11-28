@@ -1,93 +1,99 @@
+cabal-version: 3.0
+
 -- Instructions on how to write this file are in the Cabal
 -- documentation, which can be found here:
 --   http://haskell.org/cabal/release/cabal-latest/doc/users-guide/
 
-name: aoc2022
-version: 1.0.0.2
-license: BSD3
-license-file: LICENSE
-copyright: (c) James Santucci
-author: James Santucci
-maintainer: James Santucci <james.santucci@gmail.com>
-bug-reports: mailto:james.santucci@gmail.com
-stability: stable
-homepage: http://www.github.com/jisantuc/advent-of-code
-synopsis: Advent of Code 2022 solutions
-category: Console, Text
-cabal-version: >= 1.10
-build-type: Simple
-
-Description:
-  Solutions for 2022 Advent of Code solutions
+name:          aoc2022
+version:       1.0.0.2
+license:       BSD-3-Clause
+license-file:  LICENSE
+copyright:     (c) James Santucci
+author:        James Santucci
+maintainer:    James Santucci <james.santucci@gmail.com>
+bug-reports:   mailto:james.santucci@gmail.com
+stability:     stable
+homepage:      http://www.github.com/jisantuc/advent-of-code
+synopsis:      Advent of Code 2022 solutions
+category:      Console, Text
+build-type:    Simple
+description:   Solutions for 2022 Advent of Code solutions
 
 source-repository head
-  type:     git
-  location: https://github.com/jisantuc/advent-of-code
+        type:     git
+        location: https://github.com/jisantuc/advent-of-code
 
 flag threaded
-  default: False
+        default: False
 
 library
-  exposed-modules: Debug
-                 , Parser
-                 , Day1
-                 , Day2
-                 , Day3
-                 , Day4
-                 , Day5
-                 , Day6
-                 , Day7
-                 , Day8
-                 , Lib.Stack
-  hs-source-dirs:  src/
-  ghc-options: -Wall -Werror
-  build-depends:   base >= 4.17 && < 5
-                 , containers
-                 , megaparsec
-                 , parallel
-                 , text
-                 , vector
+        default-language: Haskell2010
+        exposed-modules:
+                Day1
+                Day2
+                Day3
+                Day4
+                Day5
+                Day6
+                Day7
+                Day8
+                Debug
+                Lib.Stack
+        
+        hs-source-dirs:  src/
+        ghc-options:     -Wall -Werror
+        build-depends:
+                , aoclibcore
+                , base        >=4.17 && <5
+                , containers
+                , megaparsec
+                , parallel
+                , text
+                , vector
 
 executable puzzle
-  hs-source-dirs: app
-  main-is: main.hs
-  build-depends: base >= 4.17 && < 5
-               , megaparsec
-               , parallel
-               , text
-               , vector
-               , aoc2022
-
-  if flag(threaded)
-     ghc-options: -threaded
+        default-language: Haskell2010
+        hs-source-dirs: app
+        main-is:        main.hs
+        build-depends:
+                , aoc2022
+                , aoclibcore
+                , base        >=4.17 && <5
+                , megaparsec
+                , parallel
+                , text
+                , vector
+        
+        if flag(threaded)
+                ghc-options: -threaded
 
 test-suite aoc2022-test
-  type: exitcode-stdio-1.0
-  main-is: Spec.hs
-  other-modules:
-      Day1Spec
-      Day2Spec
-      Day3Spec
-      Day4Spec
-      Day5Spec
-      Day6Spec
-      Day7Spec
-      Day8Spec
-      Lib.StackSpec
-      Testing
-      Paths_aoc2022
-  hs-source-dirs:
-      test
-  ghc-options: -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      aoc2022
-    , base >=4.17 && <5
-    , containers
-    , hspec
-    , hspec-discover
-    , megaparsec
-    , raw-strings-qq
-    , text
-    , vector
-  default-language: Haskell2010
-
+        type:             exitcode-stdio-1.0
+        main-is:          Spec.hs
+        other-modules:
+                Day1Spec
+                Day2Spec
+                Day3Spec
+                Day4Spec
+                Day5Spec
+                Day6Spec
+                Day7Spec
+                Day8Spec
+                Lib.StackSpec
+                Paths_aoc2022
+                Testing
+        
+        hs-source-dirs:   test
+        ghc-options:      -Wall -Werror -threaded -rtsopts -with-rtsopts=-N
+        build-depends:
+                , aoc2022
+                , aoclibcore
+                , base            >=4.17 && <5
+                , containers
+                , hspec
+                , megaparsec
+                , raw-strings-qq
+                , text
+                , vector
+        
+        default-language: Haskell2010

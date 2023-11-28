@@ -2,8 +2,8 @@
 
 module Day2 where
 
+import AoC.Parser (Parser)
 import Control.Applicative ((<|>))
-import Parser (Parser)
 import Text.Megaparsec (sepEndBy)
 import Text.Megaparsec.Char (char, eol, space)
 import Prelude hiding (round)
@@ -26,14 +26,15 @@ data Round = Round
   deriving (Eq, Show)
 
 data Round2 = Round2
-  { opponentThrow' :: Throw
-  , targetResult :: TargetResult }
+  { opponentThrow' :: Throw,
+    targetResult :: TargetResult
+  }
 
 parseTargetResult :: Parser TargetResult
 parseTargetResult =
   Lose <$ char 'X'
-  <|> Draw <$ char 'Y'
-  <|> Win <$ char 'Z'
+    <|> Draw <$ char 'Y'
+    <|> Win <$ char 'Z'
 
 parseThrow :: Parser Throw
 parseThrow =
@@ -52,7 +53,7 @@ parseRound2 =
 puzzleParser1 :: Parser [Round]
 puzzleParser1 = parseRound `sepEndBy` eol
 
-puzzleParser2 :: Parser[Round2]
+puzzleParser2 :: Parser [Round2]
 puzzleParser2 = parseRound2 `sepEndBy` eol
 
 scoreThrow :: Throw -> Integer
@@ -93,7 +94,7 @@ solvePart1 (round@(Round {response}) : xs) =
   let throwScore = scoreThrow response
       roundScore = scoreResult1 round
       total = throwScore + roundScore
-  in total + solvePart1 xs
+   in total + solvePart1 xs
 
 solvePart2 :: [Round2] -> Integer
 solvePart2 = foldr ((+) . scoreResult2) 0

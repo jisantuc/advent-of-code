@@ -1,4 +1,5 @@
 { mkDerivation
+, aoclib
 , base
 , containers
 , glibc
@@ -19,7 +20,7 @@ mkDerivation {
   src = ./.;
   isLibrary = true;
   isExecutable = true;
-  libraryHaskellDepends = [ base containers megaparsec parallel text vector ];
+  libraryHaskellDepends = [ aoclib base containers megaparsec parallel text vector ];
   libraryToolDepends = [ hpack glibc ];
   executableHaskellDepends = [ base containers megaparsec parallel text vector ];
   testHaskellDepends = [

@@ -1,6 +1,6 @@
 module Day4 where
 
-import Parser (Parser)
+import AoC.Parser (Parser)
 import Text.Megaparsec (sepEndBy)
 import Text.Megaparsec.Char (char, eol)
 import Text.Megaparsec.Char.Lexer (decimal)

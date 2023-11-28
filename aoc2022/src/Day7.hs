@@ -23,6 +23,7 @@ module Day7
   )
 where
 
+import AoC.Parser (Parser)
 import Data.Foldable (foldl', foldlM)
 import Data.Functor (void, ($>), (<&>))
 import Data.IORef (IORef, modifyIORef', newIORef, readIORef)
@@ -32,7 +33,6 @@ import Data.Monoid (Sum (..))
 import qualified Data.Set as Set
 import Data.Text (Text, pack, unpack)
 import Lib.Stack (Stack, key, ofAs, pop, push, top)
-import Parser (Parser)
 import Text.Megaparsec (eof, lookAhead, many, some, someTill, withRecovery, (<|>))
 import Text.Megaparsec.Char (alphaNumChar, eol, space)
 import Text.Megaparsec.Char.Lexer (decimal)
@@ -97,9 +97,13 @@ fileTreeSizes m = Map.unions $ treeSizes m <$> Map.keys m
 
 dirTargetParser :: Parser Directory
 dirTargetParser =
-  RootDir <$ "/"
-    <|> DotDot <$ ".."
-    <|> NamedDir . pack <$> many alphaNumChar
+  RootDir
+    <$ "/"
+      <|> DotDot
+    <$ ".."
+      <|> NamedDir
+      . pack
+    <$> many alphaNumChar
 
 cdParser :: Parser Instruction
 cdParser =

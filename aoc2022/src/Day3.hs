@@ -3,10 +3,10 @@
 
 module Day3 where
 
+import AoC.Parser (Parser)
 import Data.Char (isLower, ord)
 import Data.Monoid (Sum (..))
 import Data.Set (Set, fromList, intersection, union)
-import Parser (Parser)
 import Text.Megaparsec (sepEndBy, some)
 import Text.Megaparsec.Char (eol, letterChar)
 import Prelude hiding (subtract)
