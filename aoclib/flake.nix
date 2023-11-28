@@ -21,7 +21,12 @@
             haskell-language-server
             hlint
           ];
-          haskell = pkgs.haskell.packages.${compiler}.ghcWithPackages packageDependencies;
+          testDependencies = (ps: [
+            ps.hspec
+            ps.hspec-discover
+          ]);
+          haskell = pkgs.haskell.packages.${compiler}.ghcWithPackages
+            (ps: packageDependencies ps ++ testDependencies ps);
         in
         {
           devShells.default = pkgs.mkShell

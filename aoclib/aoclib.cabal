@@ -48,3 +48,4 @@ test-suite aoclib-test
         build-depends:
                 , aoclib
                 , base    ^>=4.17.2.1
+                , hspec
