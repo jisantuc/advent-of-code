@@ -1,6 +1,6 @@
 {-# LANGUAGE NoImplicitPrelude #-}
 
-module Data.Grid.Rectangular where
+module AoC.Data.Grid.Rectangular where
 
 import Prelude
   ( Int,

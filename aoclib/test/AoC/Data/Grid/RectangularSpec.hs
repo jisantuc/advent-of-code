@@ -1,6 +1,6 @@
-module Data.Grid.RectangularSpec where
+module AoC.Data.Grid.RectangularSpec where
 
-import Data.Grid.Rectangular (manhattanDistance)
+import AoC.Data.Grid.Rectangular (manhattanDistance)
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Test.Hspec.QuickCheck (prop)
 

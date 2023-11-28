@@ -13,6 +13,7 @@
           packageDependencies = (ps: [
             ps.containers
             ps.megaparsec
+            ps.text
             ps.vector
           ]);
           devDependencies = with pkgs.haskell.packages.${compiler}; [
