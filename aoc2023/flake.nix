@@ -22,7 +22,9 @@
             ps.mtl
             ps.optparse-applicative
             ps.text
+            ps.utf8-string
             ps.vector
+            ps.word8
           ]);
           devDependencies = with haskellPackages; [
             cabal-install
