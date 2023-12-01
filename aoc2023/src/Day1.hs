@@ -1,23 +1,24 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-
-{-# HLINT ignore "Redundant bracket" #-}
-{-# HLINT ignore "Redundant $" #-}
 
 module Day1 where
 
 import AoC.Parser (Parser)
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
+import qualified Data.Map as Map
 import Data.ByteString.Internal (w2c)
 import Data.Functor (($>), (<&>))
 import Data.Maybe (fromMaybe)
 import Debug.Trace (trace)
+import qualified Text.Megaparsec as Parser
 import Text.Megaparsec (many, runParser, sepBy, (<|>))
 import Text.Megaparsec.Byte (alphaNumChar, eol, string)
 
 type Puzzle = [Int]
+
+mapToParser :: Map.Map String v -> Parser v
+mapToParser = undefined
 
 spelledOutDigitParser :: Parser Int
 spelledOutDigitParser =
