@@ -4,63 +4,39 @@
 module Day1 where
 
 import AoC.Parser (Parser)
+import qualified AoC.Parser as Parser
 import Data.ByteString (ByteString)
 import qualified Data.ByteString as BS
-import qualified Data.Map as Map
-import Data.ByteString.Internal (w2c)
 import Data.Functor (($>), (<&>))
+import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
-import Debug.Trace (trace)
-import qualified Text.Megaparsec as Parser
 import Text.Megaparsec (many, runParser, sepBy, (<|>))
-import Text.Megaparsec.Byte (alphaNumChar, eol, string)
+import Text.Megaparsec.Byte (alphaNumChar, eol)
 
 type Puzzle = [Int]
 
-mapToParser :: Map.Map String v -> Parser v
-mapToParser = undefined
+wordToDigit :: Map.Map [Char] Int
+wordToDigit =
+  Map.fromList
+    [ ("one", 1),
+      ("two", 2),
+      ("three", 3),
+      ("four", 4),
+      ("five", 5),
+      ("six", 6),
+      ("seven", 7),
+      ("eight", 8),
+      ("nine", 9)
+    ]
 
 spelledOutDigitParser :: Parser Int
 spelledOutDigitParser =
-  string "one"
-    $> 1
-      <|> string "two"
-    $> 2
-      <|> string "three"
-    $> 3
-      <|> string "four"
-    $> 4
-      <|> string "five"
-    $> 5
-      <|> string "six"
-    $> 6
-      <|> string "seven"
-    $> 7
-      <|> string "eight"
-    $> 8
-      <|> string "nine"
-    $> 9
+  Parser.fromMap wordToDigit
 
 reverseSpelledOutDigits :: Parser Int
 reverseSpelledOutDigits =
-  string "eno"
-    $> 1
-      <|> string "owt"
-    $> 2
-      <|> string "eerht"
-    $> 3
-      <|> string "ruof"
-    $> 4
-      <|> string "evif"
-    $> 5
-      <|> string "xis"
-    $> 6
-      <|> string "neves"
-    $> 7
-      <|> string "thgie"
-    $> 8
-      <|> string "enin"
-    $> 9
+  let reversedKeysMap = Map.mapKeys reverse wordToDigit
+   in Parser.fromMap reversedKeysMap
 
 plainDigitParser :: Parser Int
 plainDigitParser =
@@ -91,9 +67,8 @@ day1Parser =
                    in if BS.null repacked
                         then 0
                         else
-                          trace ("line is: " <> show (w2c <$> line)) $
-                            let digits = (findFirstDigit repacked False : [findFirstDigit (BS.reverse repacked) True])
-                             in read . mconcat $ show . fromMaybe 0 <$> digits
+                          let digits = (findFirstDigit repacked False : [findFirstDigit (BS.reverse repacked) True])
+                           in read . mconcat $ show . fromMaybe 0 <$> digits
               )
       )
         `sepBy` eol
@@ -104,4 +79,4 @@ findFirstDigit bytes doReverse =
       Right digit -> Just digit
       Left _ -> if BS.null bytes then Nothing else findFirstDigit (BS.tail bytes) doReverse
   )
-    $ (runParser (plainDigitParser <|> if doReverse then reverseSpelledOutDigits else spelledOutDigitParser) "" bytes)
+    (runParser (plainDigitParser <|> if doReverse then reverseSpelledOutDigits else spelledOutDigitParser) "" bytes)

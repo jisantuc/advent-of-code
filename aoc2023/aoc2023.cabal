@@ -20,6 +20,7 @@ library
                 , aoclib
                 , base    ^>=4.17.2.1
                 , bytestring
+                , containers
                 , megaparsec
                 , utf8-string
                 , word8
