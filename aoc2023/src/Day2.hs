@@ -11,8 +11,8 @@ import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import Data.Monoid (Sum (..))
 import Text.Megaparsec (sepBy, sepEndBy)
-import Text.Megaparsec.Byte (eol)
-import Text.Megaparsec.Byte.Lexer (decimal)
+import Text.Megaparsec.Char (eol)
+import Text.Megaparsec.Char.Lexer (decimal)
 
 data MinSpanningCubes = MinSpanningCubes
   { minReds :: Sum Int,

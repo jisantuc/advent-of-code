@@ -5,17 +5,17 @@ module Day1 where
 
 import AoC.Parser (Parser)
 import qualified AoC.Parser as Parser
-import Data.ByteString (ByteString)
-import qualified Data.ByteString as BS
 import Data.Functor (($>), (<&>))
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
-import Text.Megaparsec (many, runParser, sepBy, (<|>))
-import Text.Megaparsec.Byte (alphaNumChar, eol)
+import Data.Text (Text)
+import qualified Data.Text as Text
+import Text.Megaparsec (many, parse, sepBy, (<|>))
+import Text.Megaparsec.Char (alphaNumChar, eol)
 
 type Puzzle = [Int]
 
-wordToDigit :: Map.Map [Char] Int
+wordToDigit :: Map.Map Text Int
 wordToDigit =
   Map.fromList
     [ ("one", 1),
@@ -35,7 +35,7 @@ spelledOutDigitParser =
 
 reverseSpelledOutDigits :: Parser Int
 reverseSpelledOutDigits =
-  let reversedKeysMap = Map.mapKeys reverse wordToDigit
+  let reversedKeysMap = Map.mapKeys Text.reverse wordToDigit
    in Parser.fromMap reversedKeysMap
 
 plainDigitParser :: Parser Int
@@ -60,23 +60,24 @@ plainDigitParser =
 
 day1Parser :: Parser [Int]
 day1Parser =
-  let lineParser = many alphaNumChar
+  let lineParser :: Parser [Char]
+      lineParser = many alphaNumChar
    in ( lineParser
           <&> ( \line ->
-                  let repacked = BS.pack line
-                   in if BS.null repacked
+                  let repacked = Text.pack line
+                   in if Text.null repacked
                         then 0
                         else
-                          let digits = (findFirstDigit repacked False : [findFirstDigit (BS.reverse repacked) True])
+                          let digits = (findFirstDigit repacked False : [findFirstDigit (Text.reverse repacked) True])
                            in read . mconcat $ show . fromMaybe 0 <$> digits
               )
       )
         `sepBy` eol
 
-findFirstDigit :: ByteString -> Bool -> Maybe Int
-findFirstDigit bytes doReverse =
+findFirstDigit :: Text -> Bool -> Maybe Int
+findFirstDigit t doReverse =
   ( \case
       Right digit -> Just digit
-      Left _ -> if BS.null bytes then Nothing else findFirstDigit (BS.tail bytes) doReverse
+      Left _ -> if Text.null t then Nothing else findFirstDigit (Text.tail t) doReverse
   )
-    (runParser (plainDigitParser <|> if doReverse then reverseSpelledOutDigits else spelledOutDigitParser) "" bytes)
+    (parse (plainDigitParser <|> if doReverse then reverseSpelledOutDigits else spelledOutDigitParser) "" t)

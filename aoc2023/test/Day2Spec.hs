@@ -3,9 +3,8 @@
 module Day2Spec where
 
 import AoC.Parser.Testing (expectParsed)
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.Char8 as BS
 import Data.Monoid (Sum (..))
+import qualified Data.Text as T
 import Day2
   ( Game (..),
     Limits (..),
@@ -67,9 +66,9 @@ exampleGames =
       }
   ]
 
-examplePuzzle :: BS.ByteString
+examplePuzzle :: T.Text
 examplePuzzle =
-  BS.unlines
+  T.unlines
     [ "Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green",
       "Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue",
       "Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red",

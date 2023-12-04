@@ -18,14 +18,16 @@ library
         exposed-modules:
                 Day1
                 Day2
+                Day3
         
         build-depends:
                 , aoclib
                 , base         ^>=4.17.2.1
-                , bytestring
                 , containers
                 , megaparsec
+                , text
                 , utf8-string
+                , vector
                 , word8
         
         hs-source-dirs:   src
@@ -45,6 +47,7 @@ executable aoc2023
                 , megaparsec
                 , mtl
                 , optparse-applicative
+                , text
         
         hs-source-dirs:   app
         default-language: Haskell2010
@@ -56,6 +59,7 @@ test-suite aoc2023-test
         other-modules:
                 Day1Spec
                 Day2Spec
+                Day3Spec
         
         type:             exitcode-stdio-1.0
         hs-source-dirs:   test
@@ -65,5 +69,8 @@ test-suite aoc2023-test
                 , aoclib
                 , base        ^>=4.17.2.1
                 , bytestring
+                , containers
                 , hspec
                 , megaparsec
+                , text
+                , vector
