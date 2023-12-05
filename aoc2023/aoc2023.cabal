@@ -19,6 +19,7 @@ library
                 Day1
                 Day2
                 Day3
+                Day4
         
         build-depends:
                 , aoclib
@@ -60,6 +61,7 @@ test-suite aoc2023-test
                 Day1Spec
                 Day2Spec
                 Day3Spec
+                Day4Spec
         
         type:             exitcode-stdio-1.0
         hs-source-dirs:   test
@@ -72,5 +74,6 @@ test-suite aoc2023-test
                 , containers
                 , hspec
                 , megaparsec
+                , raw-strings-qq
                 , text
                 , vector

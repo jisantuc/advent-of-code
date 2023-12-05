@@ -6,7 +6,7 @@ import AoC.Net.Puzzle (Config (..), fetch)
 import qualified AoC.Parser.CLI as CLI
 import Control.Monad.Reader (ReaderT (runReaderT))
 import qualified Data.ByteString.Char8 as BS
-import Day3 (day3Parser, solver2)
+import Day4 (parser, solver2)
 import Options.Applicative
   ( execParser,
     fullDesc,
@@ -30,7 +30,7 @@ main = do
             cacheFile = "puzzle.txt"
           }
   puzzleText <- runReaderT fetch conf
-  case parse day3Parser "" puzzleText of
+  case parse parser "" puzzleText of
     Right puzz -> print $ solver2 puzz
     Left e -> print $ errorBundlePretty e
   where

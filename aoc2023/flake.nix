@@ -21,6 +21,7 @@
             ps.megaparsec
             ps.mtl
             ps.optparse-applicative
+            ps.raw-strings-qq
             ps.text
             ps.utf8-string
             ps.vector
