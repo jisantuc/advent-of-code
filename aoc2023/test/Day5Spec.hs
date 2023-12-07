@@ -61,9 +61,6 @@ spec =
                   elemFrom 99 rangeMap `shouldBe` elemTo 99 (invertRangeMap rangeMap)
                   elemFrom 50 rangeMap `shouldBe` elemTo 50 (invertRangeMap rangeMap)
                   elemFrom 41 rangeMap `shouldBe` elemTo 41 (invertRangeMap rangeMap)
-          -- TODO / wip
-          it "inverts correctly with collections of ranges" $ do
-            True `shouldBe` True
         describe "part 1 solver" $ do
           it "finds the right complete conversions for the example seeds" $
             expectParsed parsedExamplePuzzle (\puzz -> locationForSeed puzz 79 `shouldBe` 82)
