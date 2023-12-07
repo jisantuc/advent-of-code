@@ -13,7 +13,7 @@ import Text.RawString.QQ (r)
 spec :: Spec
 spec =
   let parsedExamplePuzzle = parse parser "" examplePuzzle
-   in describe "day 5" $ do
+   in describe "day 6" $ do
         describe "parser" $
           it "parses the puzzle at all" $ do
             expectSuccessfulParse parsedExamplePuzzle True
