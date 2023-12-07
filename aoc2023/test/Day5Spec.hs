@@ -1,3 +1,4 @@
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
 
@@ -6,16 +7,22 @@ module Day5Spec where
 import AoC.Parser.Testing (expectParsed, expectSuccessfulParse)
 import qualified Data.Text as T
 import Day5
-  ( RangeMap (RangeMap),
-    elemIn,
+  ( Puzzle (..),
+    RangeMap (..),
+    elemFrom,
+    elemTo,
     fertilizerForSoil,
     humidityForTemperature,
+    invertRangeMap,
     lightForWater,
     locationForHumidity,
     locationForSeed,
     parser,
+    seedsParser1,
+    seedsParser2,
     soilForSeed,
     solver1,
+    solver2,
     temperatureForLight,
     waterForFertilizer,
   )
@@ -25,17 +32,38 @@ import Text.RawString.QQ (r)
 
 spec :: Spec
 spec =
-  let parsedExamplePuzzle = parse parser "" examplePuzzle
+  let parsedExamplePuzzle = parse (parser seedsParser1) "" examplePuzzle
+      parsedExamplePuzzle2 = parse (parser seedsParser2) "" examplePuzzle
    in describe "day 5" $ do
-        describe "parser" $
+        describe "parser" $ do
           it "parses the example puzzle" $ do
-            expectSuccessfulParse parsedExamplePuzzle True
-        describe "range map" $
+            expectSuccessfulParse parsedExamplePuzzle False
+          it "parses the example puzzle the part 2 way" $ do
+            expectSuccessfulParse parsedExamplePuzzle2 False
+            expectParsed
+              parsedExamplePuzzle2
+              ( \(Puzzle {seedsToPlant}) ->
+                  -- one for each starting number, then the two increments
+                  length seedsToPlant `shouldBe` 14 + 13 + 2
+              )
+        describe "range map" $ do
           it "finds elements correctly" $ do
-            elemIn 98 (RangeMap 98 50 2) `shouldBe` Just 50
-            elemIn 99 (RangeMap 98 50 2) `shouldBe` Just 51
-            elemIn 94 (RangeMap 95 41 100) `shouldBe` Nothing
-            elemIn 42 (RangeMap 38 24 3) `shouldBe` Nothing
+            elemTo 98 (RangeMap 98 50 2) `shouldBe` Just 50
+            elemTo 99 (RangeMap 98 50 2) `shouldBe` Just 51
+            elemTo 94 (RangeMap 95 41 100) `shouldBe` Nothing
+            elemTo 42 (RangeMap 38 24 3) `shouldBe` Nothing
+          it "inverts correctly" $ do
+            let rangeMap = RangeMap {sourceStart = 98, destinationStart = 50, mappingLength = 2}
+             in do
+                  elemFrom 50 rangeMap `shouldBe` Just 98
+                  elemFrom 51 rangeMap `shouldBe` Just 99
+                  elemFrom 98 rangeMap `shouldBe` elemTo 98 (invertRangeMap rangeMap)
+                  elemFrom 99 rangeMap `shouldBe` elemTo 99 (invertRangeMap rangeMap)
+                  elemFrom 50 rangeMap `shouldBe` elemTo 50 (invertRangeMap rangeMap)
+                  elemFrom 41 rangeMap `shouldBe` elemTo 41 (invertRangeMap rangeMap)
+          -- TODO / wip
+          it "inverts correctly with collections of ranges" $ do
+            True `shouldBe` True
         describe "part 1 solver" $ do
           it "finds the right complete conversions for the example seeds" $
             expectParsed parsedExamplePuzzle (\puzz -> locationForSeed puzz 79 `shouldBe` 82)
@@ -55,6 +83,9 @@ spec =
               )
           it "finds the right answer for the example puzzle" $ do
             expectParsed parsedExamplePuzzle (\puzz -> solver1 puzz `shouldBe` 35)
+        describe "part 2 solver" $ do
+          it "finds the right answer for the example puzzle" $ do
+            expectParsed parsedExamplePuzzle2 (\puzz -> solver2 puzz `shouldBe` 46)
 
 examplePuzzle :: T.Text
 examplePuzzle =

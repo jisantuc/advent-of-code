@@ -9,7 +9,6 @@ import qualified Data.Map as Map
 import Data.Monoid (Sum (..))
 import qualified Data.Text as T
 import Day3 (EngineSchematicSymbol (..), Puzzle (..), day3Parser, neightborhoodAround, solver1, solver2, symbolPositionsMap)
-import Debug.Trace (traceShow)
 import Test.Hspec (Spec, describe, it, shouldBe, shouldNotContain)
 import Text.Megaparsec (parse)
 
@@ -27,10 +26,10 @@ spec =
                         _ -> mempty
                     )
              in do
-                  expectSuccessfulParse parsedExamplePuzzle True
+                  expectSuccessfulParse parsedExamplePuzzle False
                   expectParsed
                     parsedExamplePuzzle
-                    ( \(Puzzle symbols) -> traceShow symbols $ symbolSum symbols `shouldBe` 467 + 114 + 35 + 633 + 617 + 58 + 592 + 755 + 664 + 598
+                    ( \(Puzzle symbols) -> symbolSum symbols `shouldBe` 467 + 114 + 35 + 633 + 617 + 58 + 592 + 755 + 664 + 598
                     )
           it "should ignore dots when trying to find special symbols" $
             expectParsed
@@ -47,7 +46,7 @@ spec =
           it "gets the right answer for the part 2 example puzzle" $
             expectParsed
               parsedExamplePuzzle
-              ( \puzz -> solver2 puzz `shouldBe` 467835)
+              (\puzz -> solver2 puzz `shouldBe` 467835)
         describe "utility methods" $ do
           describe "neightborhoodAround" $ do
             it "builds the right neighborhood for (0, 0) of width 1" $

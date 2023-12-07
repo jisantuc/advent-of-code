@@ -5,38 +5,71 @@ module Day5 where
 
 import AoC.Parser (Parser)
 import Control.Applicative ((<|>))
+import Control.Monad ((>=>))
 import Data.Foldable (foldl')
-import Data.Functor (void)
+import Data.Functor (void, (<&>))
+import Data.List (sortBy)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
-import Text.Megaparsec (between, sepBy, sepEndBy)
+import Debug.Trace (traceShow)
+import Text.Megaparsec (between, eof, sepBy, sepEndBy)
 import Text.Megaparsec.Char (eol, hspace)
 import Text.Megaparsec.Char.Lexer (decimal)
 
 data RangeMap = RangeMap
-  { sourceStart :: Int,
-    destinationStart :: Int,
-    mappingLength :: Int
+  { sourceStart :: Integer,
+    destinationStart :: Integer,
+    mappingLength :: Integer
   }
   deriving (Eq, Ord, Show)
 
-elemIn :: Int -> RangeMap -> Maybe Int
-elemIn search (RangeMap {sourceStart, destinationStart, mappingLength}) =
+-- | convert from the source to the destinsion
+elemTo :: Integer -> RangeMap -> Maybe Integer
+elemTo search (RangeMap {sourceStart, destinationStart, mappingLength}) =
   let searchGap = search - sourceStart
    in if searchGap <= mappingLength && searchGap >= 0
-        then Just $ [destinationStart ..] !! (search - sourceStart)
+        then Just $ destinationStart + (search - sourceStart)
         else Nothing
 
-elemForRanges :: [RangeMap] -> Int -> Int
+-- | convert from the destination to the source
+elemFrom :: Integer -> RangeMap -> Maybe Integer
+elemFrom search (RangeMap {sourceStart, destinationStart, mappingLength}) =
+  let searchGap = search - destinationStart
+   in traceShow
+        ( "Search gap: "
+            <> show searchGap
+            <> " source start "
+            <> show sourceStart
+            <> " dest start "
+            <> show destinationStart
+            <> " mapping length "
+            <> show mappingLength
+        )
+        $ if searchGap <= mappingLength && searchGap >= 0
+          then Just $ sourceStart + searchGap
+          else Nothing
+
+invertRangeMap :: RangeMap -> RangeMap
+invertRangeMap rm@(RangeMap {sourceStart, destinationStart}) =
+  rm {destinationStart = sourceStart, sourceStart = destinationStart}
+
+elemForRanges :: [RangeMap] -> Integer -> Integer
 elemForRanges ranges n =
   go ranges n Nothing
   where
     go ranges' search' acc =
       fromMaybe search' $
-        foldl' (<|>) acc (elemIn search' <$> ranges')
+        foldl' (<|>) acc (elemTo search' <$> ranges')
+
+invertElemFromRanges :: [RangeMap] -> Integer -> Maybe Integer
+invertElemFromRanges ranges n =
+  go ranges n Nothing
+  where
+    go ranges' search' acc =
+      foldl' (<|>) acc (elemTo search' <$> ranges')
 
 data Puzzle = Puzzle
-  { seedsToPlant :: [Int],
+  { seedsToPlant :: [Integer],
     seedToSoilRanges :: [RangeMap],
     soilToFertilizerRanges :: [RangeMap],
     fertilizerToWaterRanges :: [RangeMap],
@@ -54,9 +87,20 @@ rangeMapParser = do
   mappingLength <- decimal
   pure $ RangeMap {sourceStart, destinationStart, mappingLength}
 
-parser :: Parser Puzzle
-parser = do
-  seedsToPlant <- "seeds: " *> decimal `sepBy` hspace
+seedsParser1 :: Parser [Integer]
+seedsParser1 = "seeds: " *> decimal `sepBy` hspace
+
+seedsParser2 :: Parser [Integer]
+seedsParser2 =
+  "seeds: " *> decimal `sepBy` hspace <&> \nums ->
+    let pairsOf (x' : x'' : xs) = [x' .. x' + x''] ++ pairsOf xs
+        pairsOf _ = []
+        filledInRanges = pairsOf nums
+     in filledInRanges
+
+parser :: Parser [Integer] -> Parser Puzzle
+parser seedsParser = do
+  seedsToPlant <- seedsParser
   void $ eol *> eol
   seedToSoilRanges <- "seed-to-soil map:" *> eol *> rangeMapParser `sepEndBy` eol
   void eol
@@ -65,7 +109,8 @@ parser = do
   waterToLightRanges <- eol *> "water-to-light map:" *> eol *> rangeMapParser `sepEndBy` eol
   lightToTemperatureRanges <- eol *> "light-to-temperature map:" *> eol *> rangeMapParser `sepEndBy` eol
   temperatureToHumidityRanges <- eol *> "temperature-to-humidity map:" *> eol *> rangeMapParser `sepEndBy` eol
-  humidityToLocationRanges <- eol *> "humidity-to-location map:" *> eol *> (rangeMapParser `sepBy` eol)
+  humidityToLocationRanges <- eol *> "humidity-to-location map:" *> eol *> rangeMapParser `sepEndBy` eol
+  eof
   pure $
     Puzzle
       { seedsToPlant,
@@ -81,31 +126,55 @@ parser = do
 rangesParser :: Parser Text -> Parser [RangeMap]
 rangesParser p = between (eol *> p *> eol) eol (rangeMapParser `sepBy` eol)
 
-converter :: (Puzzle -> [RangeMap]) -> Puzzle -> Int -> Int
+converter :: (Puzzle -> [RangeMap]) -> Puzzle -> Integer -> Integer
 converter f puzzle = elemForRanges (f puzzle)
 
-soilForSeed :: Puzzle -> Int -> Int
+reverseConverter :: (Puzzle -> [RangeMap]) -> Puzzle -> Integer -> Maybe Integer
+reverseConverter f puzzle = invertElemFromRanges (f puzzle)
+
+soilForSeed :: Puzzle -> Integer -> Integer
 soilForSeed = converter seedToSoilRanges
 
-fertilizerForSoil :: Puzzle -> Int -> Int
+fertilizerForSoil :: Puzzle -> Integer -> Integer
 fertilizerForSoil = converter soilToFertilizerRanges
 
-waterForFertilizer :: Puzzle -> Int -> Int
+waterForFertilizer :: Puzzle -> Integer -> Integer
 waterForFertilizer = converter fertilizerToWaterRanges
 
-lightForWater :: Puzzle -> Int -> Int
+lightForWater :: Puzzle -> Integer -> Integer
 lightForWater = converter waterToLightRanges
 
-temperatureForLight :: Puzzle -> Int -> Int
+temperatureForLight :: Puzzle -> Integer -> Integer
 temperatureForLight = converter lightToTemperatureRanges
 
-humidityForTemperature :: Puzzle -> Int -> Int
+humidityForTemperature :: Puzzle -> Integer -> Integer
 humidityForTemperature = converter temperatureToHumidityRanges
 
-locationForHumidity :: Puzzle -> Int -> Int
+locationForHumidity :: Puzzle -> Integer -> Integer
 locationForHumidity = converter humidityToLocationRanges
 
-locationForSeed :: Puzzle -> Int -> Int
+seedForSoil :: Puzzle -> Integer -> Maybe Integer
+seedForSoil = reverseConverter seedToSoilRanges
+
+soilForFertilizer :: Puzzle -> Integer -> Maybe Integer
+soilForFertilizer = reverseConverter soilToFertilizerRanges
+
+fertilizerForWater :: Puzzle -> Integer -> Maybe Integer
+fertilizerForWater = reverseConverter fertilizerToWaterRanges
+
+waterForLight :: Puzzle -> Integer -> Maybe Integer
+waterForLight = reverseConverter waterToLightRanges
+
+lightForTemperature :: Puzzle -> Integer -> Maybe Integer
+lightForTemperature = reverseConverter lightToTemperatureRanges
+
+temperatureForHumidity :: Puzzle -> Integer -> Maybe Integer
+temperatureForHumidity = reverseConverter temperatureToHumidityRanges
+
+humidityForLocation :: Puzzle -> Integer -> Maybe Integer
+humidityForLocation = reverseConverter humidityToLocationRanges
+
+locationForSeed :: Puzzle -> Integer -> Integer
 locationForSeed p =
   locationForHumidity p
     . humidityForTemperature p
@@ -115,6 +184,22 @@ locationForSeed p =
     . fertilizerForSoil p
     . soilForSeed p
 
-solver1 :: Puzzle -> Int
+seedForLocation :: Puzzle -> Integer -> Maybe Integer
+seedForLocation p =
+  seedForSoil p
+    >=> soilForFertilizer p
+    >=> fertilizerForWater p
+    >=> waterForLight p
+    >=> lightForTemperature p
+    >=> temperatureForHumidity p
+    >=> humidityForLocation p
+
+solver1 :: Puzzle -> Integer
 solver1 puzz@(Puzzle {seedsToPlant}) =
   minimum (locationForSeed puzz <$> seedsToPlant)
+
+-- need to check 0 -> min location in humidityToLocationRanges
+-- for whether it exists back to a number in the seed list
+solver2 :: Puzzle -> Integer
+solver2 puzz =
+  head $ dropWhile (null . seedForLocation puzz) [0 ..]
