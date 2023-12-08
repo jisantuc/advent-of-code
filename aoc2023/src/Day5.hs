@@ -3,12 +3,14 @@
 
 module Day5 where
 
+import AoC.Data.Interval (Interval (..))
+import qualified AoC.Data.Interval as Interval
 import AoC.Parser (Parser)
 import Control.Applicative ((<|>))
 import Data.Foldable (foldl')
 import Data.Functor (void, (<&>))
+import Data.List (sortBy)
 import Data.Maybe (fromMaybe)
-import qualified Data.Set as Set
 import Data.Text (Text)
 import Debug.Trace (traceShow)
 import Text.Megaparsec (between, eof, sepBy, sepEndBy)
@@ -65,7 +67,7 @@ invertElemFromRanges ranges = elemForRanges (invertRangeMap <$> ranges)
 
 -- TODO I think I need a sparse representation of seedsToPlant uh oh
 data Puzzle = Puzzle
-  { seedsToPlant :: [Integer],
+  { seedsToPlant :: [Interval Integer],
     seedToSoilRanges :: [RangeMap],
     soilToFertilizerRanges :: [RangeMap],
     fertilizerToWaterRanges :: [RangeMap],
@@ -83,18 +85,18 @@ rangeMapParser = do
   mappingLength <- decimal
   pure $ RangeMap {sourceStart, destinationStart, mappingLength}
 
-seedsParser1 :: Parser [Integer]
-seedsParser1 = "seeds: " *> decimal `sepBy` hspace
+seedsParser1 :: Parser [Interval Integer]
+seedsParser1 = "seeds: " *> (decimal <&> \d -> Interval d d) `sepBy` hspace
 
-seedsParser2 :: Parser [Integer]
+seedsParser2 :: Parser [Interval Integer]
 seedsParser2 =
   "seeds: " *> decimal `sepBy` hspace <&> \nums ->
-    let pairsOf (x' : x'' : xs) = [x' .. x' + x''] ++ pairsOf xs
+    let pairsOf (x' : x'' : xs) = Interval x' x'' : pairsOf xs
         pairsOf _ = []
         filledInRanges = pairsOf nums
      in filledInRanges
 
-parser :: Parser [Integer] -> Parser Puzzle
+parser :: Parser [Interval Integer] -> Parser Puzzle
 parser seedsParser = do
   seedsToPlant <- seedsParser
   void $ eol *> eol
@@ -181,23 +183,38 @@ locationForSeed p =
     . soilForSeed p
 
 seedForLocation :: Puzzle -> Integer -> Integer
-seedForLocation p =
-  seedForSoil p
-    . soilForFertilizer p
-    . fertilizerForWater p
-    . waterForLight p
-    . lightForTemperature p
-    . temperatureForHumidity p
-    . humidityForLocation p
+seedForLocation p n =
+  let f =
+        seedForSoil p
+          . soilForFertilizer p
+          . fertilizerForWater p
+          . waterForLight p
+          . lightForTemperature p
+          . temperatureForHumidity p
+          . humidityForLocation p
+   in if snd (n `divMod` 1000000) == 0 then traceShow ("Searching for " <> show n) $ f n else f n
 
 solver1 :: Puzzle -> Integer
 solver1 puzz@(Puzzle {seedsToPlant}) =
-  minimum (locationForSeed puzz <$> seedsToPlant)
+  minimum (locationForSeed puzz <$> (start <$> seedsToPlant))
 
 -- need to check 0 -> min location in humidityToLocationRanges
 -- for whether it exists back to a number in the seed list
 solver2 :: Puzzle -> Integer
-solver2 puzz@(Puzzle {seedsToPlant}) =
-  let allSeeds = Set.fromList seedsToPlant
-   in go allSeeds 0
-     where go xs n = if seedForLocation puzz n `elem` xs then n else go xs (n + 1)
+solver2 puzz@(Puzzle {seedsToPlant, humidityToLocationRanges}) =
+  fromMaybe 0
+    $ foldl'
+      ( \acc range ->
+          case acc of
+            Just n -> Just n
+            Nothing -> go seedsToPlant range
+      )
+      Nothing
+    $ sortBy (\rm1 rm2 -> destinationStart rm1 `compare` destinationStart rm2) humidityToLocationRanges
+  where
+    go intervals (RangeMap {destinationStart, mappingLength}) =
+      traceShow ("Starting interval from " <> show destinationStart <> " to " <> show (destinationStart + mappingLength)) $
+        go' intervals destinationStart (destinationStart + mappingLength)
+    go' intervals n end =
+      let seed = seedForLocation puzz n
+       in if any (Interval.elem seed) intervals then Just n else if (n + 1) > end then Nothing else go' intervals (n + 1) end
