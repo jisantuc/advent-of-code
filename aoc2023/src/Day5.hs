@@ -9,7 +9,6 @@ import AoC.Parser (Parser)
 import Control.Applicative ((<|>))
 import Data.Foldable (foldl')
 import Data.Functor (void, (<&>))
-import Data.List (sortBy)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import Debug.Trace (traceShow)
@@ -62,10 +61,15 @@ elemForRanges ranges n =
       fromMaybe search' $
         foldl' (<|>) acc (elemTo search' <$> ranges')
 
+rangesForRange :: [RangeMap] -> RangeMap -> [RangeMap]
+rangesForRange ranges (RangeMap { sourceStart, destinationStart, mappingLength }) =
+  let sourceInterval = Interval sourceStart (sourceStart + mappingLength)
+      destinationInterval = Interval destinationStart (destinationStart + mappingLength)
+   in undefined
+
 invertElemFromRanges :: [RangeMap] -> Integer -> Integer
 invertElemFromRanges ranges = elemForRanges (invertRangeMap <$> ranges)
 
--- TODO I think I need a sparse representation of seedsToPlant uh oh
 data Puzzle = Puzzle
   { seedsToPlant :: [Interval Integer],
     seedToSoilRanges :: [RangeMap],
@@ -127,8 +131,8 @@ rangesParser p = between (eol *> p *> eol) eol (rangeMapParser `sepBy` eol)
 converter :: (Puzzle -> [RangeMap]) -> Puzzle -> Integer -> Integer
 converter f puzzle = elemForRanges (f puzzle)
 
-reverseConverter :: (Puzzle -> [RangeMap]) -> Puzzle -> Integer -> Integer
-reverseConverter f = converter ((invertRangeMap <$>) . f)
+rangeConverter :: (Puzzle -> [RangeMap]) -> Puzzle -> RangeMap -> [RangeMap]
+rangeConverter f puzzle = rangesForRange (f puzzle)
 
 soilForSeed :: Puzzle -> Integer -> Integer
 soilForSeed = converter seedToSoilRanges
@@ -151,27 +155,6 @@ humidityForTemperature = converter temperatureToHumidityRanges
 locationForHumidity :: Puzzle -> Integer -> Integer
 locationForHumidity = converter humidityToLocationRanges
 
-seedForSoil :: Puzzle -> Integer -> Integer
-seedForSoil = reverseConverter seedToSoilRanges
-
-soilForFertilizer :: Puzzle -> Integer -> Integer
-soilForFertilizer = reverseConverter soilToFertilizerRanges
-
-fertilizerForWater :: Puzzle -> Integer -> Integer
-fertilizerForWater = reverseConverter fertilizerToWaterRanges
-
-waterForLight :: Puzzle -> Integer -> Integer
-waterForLight = reverseConverter waterToLightRanges
-
-lightForTemperature :: Puzzle -> Integer -> Integer
-lightForTemperature = reverseConverter lightToTemperatureRanges
-
-temperatureForHumidity :: Puzzle -> Integer -> Integer
-temperatureForHumidity = reverseConverter temperatureToHumidityRanges
-
-humidityForLocation :: Puzzle -> Integer -> Integer
-humidityForLocation = reverseConverter humidityToLocationRanges
-
 locationForSeed :: Puzzle -> Integer -> Integer
 locationForSeed p =
   locationForHumidity p
@@ -182,18 +165,6 @@ locationForSeed p =
     . fertilizerForSoil p
     . soilForSeed p
 
-seedForLocation :: Puzzle -> Integer -> Integer
-seedForLocation p n =
-  let f =
-        seedForSoil p
-          . soilForFertilizer p
-          . fertilizerForWater p
-          . waterForLight p
-          . lightForTemperature p
-          . temperatureForHumidity p
-          . humidityForLocation p
-   in if snd (n `divMod` 1000000) == 0 then traceShow ("Searching for " <> show n) $ f n else f n
-
 solver1 :: Puzzle -> Integer
 solver1 puzz@(Puzzle {seedsToPlant}) =
   minimum (locationForSeed puzz <$> (start <$> seedsToPlant))
@@ -201,20 +172,4 @@ solver1 puzz@(Puzzle {seedsToPlant}) =
 -- need to check 0 -> min location in humidityToLocationRanges
 -- for whether it exists back to a number in the seed list
 solver2 :: Puzzle -> Integer
-solver2 puzz@(Puzzle {seedsToPlant, humidityToLocationRanges}) =
-  fromMaybe 0
-    $ foldl'
-      ( \acc range ->
-          case acc of
-            Just n -> Just n
-            Nothing -> go seedsToPlant range
-      )
-      Nothing
-    $ sortBy (\rm1 rm2 -> destinationStart rm1 `compare` destinationStart rm2) humidityToLocationRanges
-  where
-    go intervals (RangeMap {destinationStart, mappingLength}) =
-      traceShow ("Starting interval from " <> show destinationStart <> " to " <> show (destinationStart + mappingLength)) $
-        go' intervals destinationStart (destinationStart + mappingLength)
-    go' intervals n end =
-      let seed = seedForLocation puzz n
-       in if any (Interval.elem seed) intervals then Just n else if (n + 1) > end then Nothing else go' intervals (n + 1) end
+solver2 puzz@(Puzzle {seedsToPlant, humidityToLocationRanges}) = undefined
