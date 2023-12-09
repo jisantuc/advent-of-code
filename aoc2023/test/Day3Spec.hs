@@ -27,7 +27,7 @@ spec =
                         _ -> mempty
                     )
              in do
-                  expectSuccessfulParse parsedExamplePuzzle True
+                  expectSuccessfulParse parsedExamplePuzzle False
                   expectParsed
                     parsedExamplePuzzle
                     ( \(Puzzle symbols) -> traceShow symbols $ symbolSum symbols `shouldBe` 467 + 114 + 35 + 633 + 617 + 58 + 592 + 755 + 664 + 598

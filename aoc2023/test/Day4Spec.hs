@@ -16,7 +16,7 @@ spec =
    in describe "day 4" $ do
         describe "parser" $ do
           it "parses successfully at all" $ do
-            expectSuccessfulParse parsedExamplePuzzle True
+            expectSuccessfulParse parsedExamplePuzzle False
         describe "part 1 solver" $ do
           it "gets the right answer for the example puzzle" $
             expectParsed

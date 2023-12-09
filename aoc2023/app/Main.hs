@@ -6,7 +6,7 @@ import AoC.Net.Puzzle (Config (..), fetch)
 import qualified AoC.Parser.CLI as CLI
 import Control.Monad.Reader (ReaderT (runReaderT))
 import qualified Data.ByteString.Char8 as BS
-import Day6 (parser, solver1)
+import Day7 (parser, solver2)
 import Options.Applicative
   ( execParser,
     fullDesc,
@@ -27,11 +27,11 @@ main = do
           { year = CLI.year runnerConf,
             day = CLI.day runnerConf,
             token = BS.pack sessionToken,
-            cacheFile = "puzzle.txt"
+            cacheFile = "puzzles/puzzle" <> show (CLI.day runnerConf) <> ".txt"
           }
   puzzleText <- runReaderT fetch conf
   case parse parser "" puzzleText of
-    Right puzz -> print $ solver1 puzz
+    Right puzz -> print $ solver2 puzz
     Left e -> print $ errorBundlePretty e
   where
     opts = info (CLI.runnerOptionsParser <**> helper) (fullDesc <> progDesc "Solve a puzzle and print the output for some year and day")
