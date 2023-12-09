@@ -25,7 +25,7 @@ spec =
    in describe "day 7" $ do
         describe "parser" $ do
           it "parses the example puzzle at all" $ do
-            expectSuccessfulParse parsedExamplePuzzle True
+            expectSuccessfulParse parsedExamplePuzzle False
             expectParsed
               parsedExamplePuzzle
               ( \(Puzzle hands) ->
