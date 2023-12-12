@@ -23,6 +23,7 @@ library
                 Day6
                 Day7
                 Day8
+                Day9
         
         build-depends:
                 , aoclib
@@ -68,6 +69,7 @@ test-suite aoc2023-test
                 Day6Spec
                 Day7Spec
                 Day8Spec
+                Day9Spec
         
         type:             exitcode-stdio-1.0
         hs-source-dirs:   test
