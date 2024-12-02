@@ -25,3 +25,4 @@ cabal.project.local~
 # AOC
 puzzle.txt
 puzzles
+.env
