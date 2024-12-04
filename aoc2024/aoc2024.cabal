@@ -16,6 +16,7 @@ library
   import: warnings
   exposed-modules:
     Day2
+    Day3
 
   build-depends:
     aoclib,
@@ -48,11 +49,14 @@ test-suite aoc2024-test
   default-language: Haskell2010
   other-modules:
     Day2Spec
+    Day3Spec
 
   type: exitcode-stdio-1.0
   hs-source-dirs: test
   main-is: Spec.hs
   build-depends:
     aoc2024,
+    aoclib,
     base ^>=4.19,
     hspec,
+    megaparsec
