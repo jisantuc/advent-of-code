@@ -11,11 +11,11 @@
         "utils": "utils_2"
       },
       "locked": {
-        "lastModified": 1732946306,
-        "narHash": "sha256-9vjzaHA0brTP5YEyrG7/6Lc1PcOAwX3sfgQpbaFcz5s=",
+        "lastModified": 1733362199,
+        "narHash": "sha256-GKHITx/N84NMtd/Vr1VDLTmNGWfeBDf1yViHFh5Ez+k=",
         "owner": "jisantuc",
         "repo": "aoclib",
-        "rev": "fbab09abbcb23f733614592493cd99668aeb84c7",
+        "rev": "2cf3c022df521b1ceef7f11bc179816069dc3636",
         "type": "github"
       },
       "original": {
@@ -60,11 +60,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1732749044,
-        "narHash": "sha256-T38FQOg0BV5M8FN1712fovzNakSOENEYs+CSkg31C9Y=",
+        "lastModified": 1733220138,
+        "narHash": "sha256-Yh5XZ9yVurrcYdNTSWxYgW4+EJ0pcOqgM1043z9JaRc=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "0c5b4ecbed5b155b705336aa96d878e55acd8685",
+        "rev": "bcb68885668cccec12276bbb379f8f2557aa06ce",
         "type": "github"
       },
       "original": {
