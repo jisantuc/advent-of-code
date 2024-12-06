@@ -57,7 +57,7 @@ fixInvalidLine r@(PrecedenceRules rules) = go []
     go :: [Int] -> [Int] -> [Int]
     go acc remaining =
       case unsnoc remaining of
-        Nothing -> if updateIsValid r acc then acc else fixInvalidLine r acc
+        Nothing -> if updateIsValid r acc then acc else go [] acc
         Just (h, page) ->
           let rule = Map.lookup page rules
            in case rule of
