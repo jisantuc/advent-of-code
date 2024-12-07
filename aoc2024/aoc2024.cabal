@@ -19,13 +19,13 @@ library
     Day3
     Day4
     Day5
+    Day6
 
   build-depends:
     aoclib,
     base ^>=4.19,
     containers,
     megaparsec,
-    mtl,
     vector,
 
   hs-source-dirs: src
@@ -56,6 +56,7 @@ test-suite aoc2024-test
     Day3Spec
     Day4Spec
     Day5Spec
+    Day6Spec
 
   type: exitcode-stdio-1.0
   hs-source-dirs: test
