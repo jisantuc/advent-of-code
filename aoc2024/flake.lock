@@ -11,15 +11,16 @@
         "utils": "utils_2"
       },
       "locked": {
-        "lastModified": 1733362199,
-        "narHash": "sha256-GKHITx/N84NMtd/Vr1VDLTmNGWfeBDf1yViHFh5Ez+k=",
+        "lastModified": 1733531926,
+        "narHash": "sha256-86GF03+K8jWcEtZpY2W2GRzC85kSFD30/lukj39f+CQ=",
         "owner": "jisantuc",
         "repo": "aoclib",
-        "rev": "2cf3c022df521b1ceef7f11bc179816069dc3636",
+        "rev": "0d3e26005777811ea6c80d3af704806d4f469c52",
         "type": "github"
       },
       "original": {
         "owner": "jisantuc",
+        "ref": "feat/js/enhance-rectangular-grid-for-2024-day6",
         "repo": "aoclib",
         "type": "github"
       }
