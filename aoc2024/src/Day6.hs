@@ -19,7 +19,6 @@ import Data.Maybe (isJust)
 import qualified Data.Set as Set
 import Data.Vector ((!))
 import qualified Data.Vector as Vector
-import Debug.Trace (traceShow)
 import Text.Megaparsec (getSourcePos, many, sepBy)
 import Text.Megaparsec.Char (eol)
 
@@ -203,7 +202,7 @@ checkForLoop g@(RectangularGrid mat) path guardPoint loc =
       nRows = Vector.length mat
       nCols = Vector.length (mat ! 0)
       withObstacle = replace g loc (loc, Obstacle)
-   in traceShow loc $ case loc of
+   in case loc of
         (r, c) | r == nRows || c == nCols -> Nothing
         p | p `notElem` Set.fromList (fst <$> locations) -> Nothing
         p | p == guardPoint -> Nothing
