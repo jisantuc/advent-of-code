@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-25.05";
+    nixpkgs.follows = "aoclib/nixpkgs";
     utils.url = "github:numtide/flake-utils";
     aoclib = {
       type = "github";
@@ -16,10 +16,9 @@
         let
           pkgs = nixpkgs.legacyPackages.${system};
           compiler = "ghc98";
-          haskellPackages = pkgs.haskell.packages.${compiler}.extend(final: prev: {
-            aoclib = aoclib.packages.${system}.default;
-          });
+          haskellPackages = pkgs.haskell.packages.${compiler};
           devDependencies = with haskellPackages; [
+            cabal2nix
             cabal-fmt
             cabal-gild
             cabal-install
@@ -30,13 +29,13 @@
         in
         {
           devShells.default = haskellPackages.shellFor {
-            packages = ps: [ (ps.callCabal2nix "aoclib" ./. { }) ];
+            packages = ps: [ (ps.callCabal2nix "aoclib" ./. { aoclib = aoclib.packages.${system}.default; }) ];
             nativeBuildInputs = devDependencies;
             withHoogle = true;
           };
 
           devShells.ci = haskellPackages.shellFor {
-            packages = ps: [ (ps.callCabal2nix "aoclib" ./. { }) ];
+            packages = ps: [ (ps.callCabal2nix "aoclib" ./. { aoclib = aoclib.packages.${system}.default; }) ];
             nativeBuildInputs = with haskellPackages; [ cabal-install ];
           };
 
