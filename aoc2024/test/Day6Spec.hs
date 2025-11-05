@@ -4,7 +4,6 @@
 module Day6Spec where
 
 import AoC.Data.Grid.Rectangular (Direction (..), RectangularGrid (..))
-import qualified AoC.Data.Grid.Rectangular as RectangularGrid
 import AoC.Parser.Testing (expectParsed, expectSuccessfulParse)
 import Data.Text (Text)
 import Data.Vector ((!))

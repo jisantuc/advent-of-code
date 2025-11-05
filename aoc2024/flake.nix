@@ -6,7 +6,7 @@
       type = "github";
       owner = "jisantuc";
       repo = "aoclib";
-      ref = "main";
+      ref = "feat/js/add-interval-tree";
     };
   };
 
