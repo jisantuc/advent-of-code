@@ -1,12 +1,12 @@
 {
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-24.05";
+    nixpkgs.url = "nixpkgs/nixos-25.05";
     utils.url = "github:numtide/flake-utils";
     aoclib = {
       type = "github";
       owner = "jisantuc";
       repo = "aoclib";
-      ref = "feat/js/enhance-rectangular-grid-for-2024-day6";
+      ref = "main";
     };
   };
 

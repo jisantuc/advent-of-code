@@ -11,16 +11,16 @@
         "utils": "utils_2"
       },
       "locked": {
-        "lastModified": 1733614956,
-        "narHash": "sha256-OjOlj3eUFPLcirV5lGoewCtSlSQeKQagGnbpa40DhiY=",
+        "lastModified": 1762318852,
+        "narHash": "sha256-da4Uxs2YU7akFN3mPNeBAi+2XWexpVyqSLUw5Na1vV4=",
         "owner": "jisantuc",
         "repo": "aoclib",
-        "rev": "86efdfe9dff987e5f86726a030a7b11faa90deb8",
+        "rev": "dcb6ae65d922244980ca8ca5e64cd0dc529a8f18",
         "type": "github"
       },
       "original": {
         "owner": "jisantuc",
-        "ref": "feat/js/enhance-rectangular-grid-for-2024-day6",
+        "ref": "main",
         "repo": "aoclib",
         "type": "github"
       }
@@ -61,16 +61,16 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1733384649,
-        "narHash": "sha256-K5DJ2LpPqht7K76bsxetI+YHhGGRyVteTPRQaIIKJpw=",
+        "lastModified": 1761999846,
+        "narHash": "sha256-IYlYnp4O4dzEpL77BD/lj5NnJy2J8qbHkNSFiPBCbqo=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "190c31a89e5eec80dd6604d7f9e5af3802a58a13",
+        "rev": "3de8f8d73e35724bf9abef41f1bdbedda1e14a31",
         "type": "github"
       },
       "original": {
         "id": "nixpkgs",
-        "ref": "nixos-24.05",
+        "ref": "nixos-25.05",
         "type": "indirect"
       }
     },
