@@ -18,7 +18,6 @@
           compiler = "ghc98";
           haskellPackages = pkgs.haskell.packages.${compiler};
           devDependencies = with haskellPackages; [
-            cabal2nix
             cabal-fmt
             cabal-gild
             cabal-install
