@@ -26,6 +26,8 @@ spec =
                 puzz ! 0 ! 3 `shouldBe` 0
                 puzz ! 1 ! 3 `shouldBe` 1
                 puzz ! 3 ! 4 `shouldBe` 4
+                puzz ! 6 ! 6 `shouldBe` 9
+                puzz ! 6 ! 0 `shouldBe` 9
 
 simpleTopo :: Text
 simpleTopo =
