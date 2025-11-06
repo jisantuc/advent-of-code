@@ -3,31 +3,68 @@
 
 module Day10Spec where
 
-import AoC.Data.Grid.Rectangular (RectangularGrid (RectangularGrid), debugShow)
+import AoC.Data.Grid.Rectangular (RectangularGrid (..))
 import AoC.Parser.Testing (expectParsed, expectSuccessfulParse)
 import Data.Text (Text)
 import Data.Vector ((!))
-import Day10 (puzzleParser)
+import Day10 (countReachableSummits, puzzleParser, rateTrailhead, solve1)
+import Debug.Trace (traceShow)
 import Test.Hspec (Spec, describe, it, shouldBe)
 import Text.Megaparsec (parse)
 import Text.RawString.QQ (r)
-import Debug.Trace (trace)
-import Data.Char (intToDigit)
 
 spec :: Spec
 spec =
   describe "Day10Spec" $
     let parsedSimplePuzzle = parse puzzleParser "" simpleTopo
+        parsedMediumPuzzle = parse puzzleParser "" mediumTopo
+        parsedBigPuzzle = parse puzzleParser "" bigTopo
+        parsedSimpleForkingPuzzle = parse puzzleParser "" simpleForkingTopo
+        parsedMediumForkingPuzzle = parse puzzleParser "" mediumForkingTopo
      in do
           describe "parsing" $ do
             it "parses the simple puzzle" $ do
               expectSuccessfulParse parsedSimplePuzzle False
-              expectParsed parsedSimplePuzzle $ \p@(RectangularGrid puzz) -> trace (debugShow intToDigit p) $ do
+              expectParsed parsedSimplePuzzle $ \(RectangularGrid puzz) -> do
                 puzz ! 0 ! 3 `shouldBe` 0
                 puzz ! 1 ! 3 `shouldBe` 1
                 puzz ! 3 ! 4 `shouldBe` 4
                 puzz ! 6 ! 6 `shouldBe` 9
                 puzz ! 6 ! 0 `shouldBe` 9
+          describe "part 1" $ do
+            describe "trailhead scoring" $ do
+              it "scores a summit as 1" $
+                expectParsed (parse puzzleParser "" "9") $ \puzz ->
+                  countReachableSummits 0 0 puzz `shouldBe` 1
+              it "scores a location next to a summit as 1" $ do
+                expectParsed (parse puzzleParser "" "98") $ \puzz ->
+                  traceShow puzz $ countReachableSummits 0 0 puzz `shouldBe` 1
+                expectParsed (parse puzzleParser "" "89") $ \puzz ->
+                  traceShow puzz $ countReachableSummits 0 0 puzz `shouldBe` 1
+              it "scores a location between two summits as 2" $
+                expectParsed (parse puzzleParser "" "989") $ \puzz ->
+                  countReachableSummits 0 1 puzz `shouldBe` 2
+              it "scores a location between four summits as 4" $
+                expectParsed (parse puzzleParser "" "090\n989\n090") $ \puzz ->
+                  countReachableSummits 1 1 puzz `shouldBe` 4
+              it "scores the simple trailhead correctly" $
+                expectParsed parsedSimplePuzzle $
+                  (`shouldBe` 2) . countReachableSummits 0 3
+              it "counts reachable summits in the medium topo" $
+                expectParsed parsedMediumPuzzle $ \puzz -> do
+                  countReachableSummits 0 1 puzz `shouldBe` 1
+                  countReachableSummits 6 5 puzz `shouldBe` 2
+              it "counts reachable summits in the big topo" $
+                expectParsed parsedBigPuzzle $ \puzz -> do
+                  countReachableSummits 0 2 puzz `shouldBe` 5
+                  countReachableSummits 0 4 puzz `shouldBe` 6
+            it "solves the examples" $ do
+              expectParsed parsedBigPuzzle $ \puzz -> solve1 puzz `shouldBe` 36
+          describe "part 2" $ do
+            it "rates example trails correctly" $ do
+              expectParsed parsedSimplePuzzle $ \puzz -> rateTrailhead 0 3 puzz `shouldBe` 2
+              expectParsed parsedSimpleForkingPuzzle $ \puzz -> rateTrailhead 0 5 puzz `shouldBe` 3
+              expectParsed parsedMediumForkingPuzzle $ \puzz -> rateTrailhead 0 3 puzz `shouldBe` 13
 
 simpleTopo :: Text
 simpleTopo =
@@ -38,4 +75,47 @@ simpleTopo =
 7.....7
 8.....8
 9.....9
+|]
+
+mediumTopo :: Text
+mediumTopo =
+  [r|10..9..
+2...8..
+3...7..
+4567654
+...8..3
+...9..2
+.....01|]
+
+bigTopo :: Text
+bigTopo =
+  [r|89010123
+78121874
+87430965
+96549874
+45678903
+32019012
+01329801
+10456732
+|]
+
+simpleForkingTopo :: Text
+simpleForkingTopo =
+  [r|.....0.
+..4321.
+..5..2.
+..6543.
+..7..4.
+..8765.
+..9....
+|]
+
+mediumForkingTopo :: Text
+mediumForkingTopo = [r|..90..9
+...1.98
+...2..7
+6543456
+765.987
+876....
+987....
 |]
