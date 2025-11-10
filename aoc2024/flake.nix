@@ -38,7 +38,9 @@
             nativeBuildInputs = with haskellPackages; [ cabal-install ];
           };
 
-          packages.default = haskellPackages.callCabal2nix "aoclib" ./. { };
+          packages.default = haskellPackages.callCabal2nix "aoclib" ./. {
+            aoclib = aoclib.packages.${system}.default;
+          };
         }
       );
 }
