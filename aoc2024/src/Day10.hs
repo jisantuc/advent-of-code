@@ -44,8 +44,8 @@ puzzleParser =
             ]
    in fromLists <$> sepBy rowParser eol
 
-countReachableSummits :: Int -> Int -> RectangularGrid Int -> Int
-countReachableSummits row col (RectangularGrid puzz) =
+scorePosition :: Int -> Int -> RectangularGrid Int -> Int
+scorePosition row col (RectangularGrid puzz) =
   length . summits $ go row col mempty
   where
     nRows = length puzz
@@ -81,12 +81,8 @@ countReachableSummits row col (RectangularGrid puzz) =
                   )
                   (filter (`notElem` visited) ns)
 
-rateTrailhead :: Int -> Int -> RectangularGrid Int -> Int
-rateTrailhead row col (RectangularGrid puzz) =
-  undefined
-
-solve :: (Int -> Int -> RectangularGrid Int -> Int) -> RectangularGrid Int -> Int
-solve scoreFn puzz@(RectangularGrid grid) =
+solve1 :: RectangularGrid Int -> Int
+solve1 puzz@(RectangularGrid grid) =
   let nRows = length grid
       nCols = length (grid ! 0)
       coords = [(r, c) | r <- [0 .. nRows - 1], c <- [0 .. nCols - 1]]
@@ -94,10 +90,7 @@ solve scoreFn puzz@(RectangularGrid grid) =
         foldMap'
           ( \(r, c) ->
               case grid ! r ! c of
-                0 -> Sum . scoreFn r c $ puzz
+                0 -> Sum . scorePosition r c $ puzz
                 _ -> mempty
           )
           coords
-
-solve1 :: RectangularGrid Int -> Int
-solve1 = solve countReachableSummits

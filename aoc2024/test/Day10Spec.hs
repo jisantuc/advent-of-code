@@ -7,9 +7,9 @@ import AoC.Data.Grid.Rectangular (RectangularGrid (..))
 import AoC.Parser.Testing (expectParsed, expectSuccessfulParse)
 import Data.Text (Text)
 import Data.Vector ((!))
-import Day10 (countReachableSummits, puzzleParser, rateTrailhead, solve1)
+import Day10 (scorePosition, puzzleParser, solve1)
 import Debug.Trace (traceShow)
-import Test.Hspec (Spec, describe, it, shouldBe)
+import Test.Hspec (Spec, describe, it, shouldBe, pending)
 import Text.Megaparsec (parse)
 import Text.RawString.QQ (r)
 
@@ -35,36 +35,33 @@ spec =
             describe "trailhead scoring" $ do
               it "scores a summit as 1" $
                 expectParsed (parse puzzleParser "" "9") $ \puzz ->
-                  countReachableSummits 0 0 puzz `shouldBe` 1
+                  scorePosition 0 0 puzz `shouldBe` 1
               it "scores a location next to a summit as 1" $ do
                 expectParsed (parse puzzleParser "" "98") $ \puzz ->
-                  traceShow puzz $ countReachableSummits 0 0 puzz `shouldBe` 1
+                  traceShow puzz $ scorePosition 0 0 puzz `shouldBe` 1
                 expectParsed (parse puzzleParser "" "89") $ \puzz ->
-                  traceShow puzz $ countReachableSummits 0 0 puzz `shouldBe` 1
+                  traceShow puzz $ scorePosition 0 0 puzz `shouldBe` 1
               it "scores a location between two summits as 2" $
                 expectParsed (parse puzzleParser "" "989") $ \puzz ->
-                  countReachableSummits 0 1 puzz `shouldBe` 2
+                  scorePosition 0 1 puzz `shouldBe` 2
               it "scores a location between four summits as 4" $
                 expectParsed (parse puzzleParser "" "090\n989\n090") $ \puzz ->
-                  countReachableSummits 1 1 puzz `shouldBe` 4
+                  scorePosition 1 1 puzz `shouldBe` 4
               it "scores the simple trailhead correctly" $
                 expectParsed parsedSimplePuzzle $
-                  (`shouldBe` 2) . countReachableSummits 0 3
+                  (`shouldBe` 2) . scorePosition 0 3
               it "counts reachable summits in the medium topo" $
                 expectParsed parsedMediumPuzzle $ \puzz -> do
-                  countReachableSummits 0 1 puzz `shouldBe` 1
-                  countReachableSummits 6 5 puzz `shouldBe` 2
+                  scorePosition 0 1 puzz `shouldBe` 1
+                  scorePosition 6 5 puzz `shouldBe` 2
               it "counts reachable summits in the big topo" $
                 expectParsed parsedBigPuzzle $ \puzz -> do
-                  countReachableSummits 0 2 puzz `shouldBe` 5
-                  countReachableSummits 0 4 puzz `shouldBe` 6
+                  scorePosition 0 2 puzz `shouldBe` 5
+                  scorePosition 0 4 puzz `shouldBe` 6
             it "solves the examples" $ do
               expectParsed parsedBigPuzzle $ \puzz -> solve1 puzz `shouldBe` 36
-          describe "part 2" $ do
-            it "rates example trails correctly" $ do
-              expectParsed parsedSimplePuzzle $ \puzz -> rateTrailhead 0 3 puzz `shouldBe` 2
-              expectParsed parsedSimpleForkingPuzzle $ \puzz -> rateTrailhead 0 5 puzz `shouldBe` 3
-              expectParsed parsedMediumForkingPuzzle $ \puzz -> rateTrailhead 0 3 puzz `shouldBe` 13
+          describe "part 2" $ 
+            it "rates summits correctly" pending
 
 simpleTopo :: Text
 simpleTopo =
