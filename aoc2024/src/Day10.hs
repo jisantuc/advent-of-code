@@ -1,11 +1,12 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Day10 where
+module Day10 (scorePosition, puzzleParser, solve1) where
 
 import AoC.Data.Grid.Rectangular (Point, RectangularGrid (..), fromLists)
 import AoC.Parser (Parser)
 import Data.Foldable (foldMap')
+import qualified Data.Map.Strict as Map
 import Data.Monoid (Sum (..))
 import qualified Data.Set as Set
 import Data.Vector ((!))
@@ -44,26 +45,53 @@ puzzleParser =
             ]
    in fromLists <$> sepBy rowParser eol
 
+validCoord :: Int -> Int -> (Int, Int) -> Bool
+validCoord nRows nCols (r, c) = r >= 0 && r < nRows && c >= 0 && c < nCols
+
+getHeight :: RectangularGrid a -> Int -> Int -> a
+getHeight (RectangularGrid puzz) r c = puzz ! r ! c
+
+neighborCoords :: RectangularGrid a -> Int -> Int -> [(Int, Int)]
+neighborCoords (RectangularGrid puzz) r c =
+  filter
+    (validCoord (length puzz) (length $ puzz ! 0))
+    [ (r - 1, c),
+      (r + 1, c),
+      (r, c - 1),
+      (r, c + 1)
+    ]
+
+
+neighbors :: (Point -> Bool) -> RectangularGrid Int -> Int -> Int -> [Point]
+neighbors cond puzz r c =  
+  filter cond $ neighborCoords puzz r c
+
+uphillNeighbors :: RectangularGrid Int -> Int -> Int -> [Point]
+uphillNeighbors puzz r c =
+  neighbors
+    (\(r', c') -> getHeight puzz r' c' - getHeight puzz r c == 1)
+    puzz
+    r
+    c
+
+downhillNeighbors :: RectangularGrid Int -> Int -> Int -> [Point]
+downhillNeighbors puzz r c =
+  neighbors
+    ( \(r', c') ->
+        getHeight puzz r' c' - getHeight puzz r c == -1
+    )
+    puzz
+    r
+    c
+
 scorePosition :: Int -> Int -> RectangularGrid Int -> Int
-scorePosition row col (RectangularGrid puzz) =
+scorePosition row col puzz =
   length . summits $ go row col mempty
   where
-    nRows = length puzz
-    nCols = length (puzz ! 0)
-    validCoord (r, c) = r >= 0 && r < nRows && c >= 0 && c < nCols
-    getHeight r c = puzz ! r ! c
-    neighborCoords r c =
-      filter
-        validCoord
-        [ (r - 1, c),
-          (r + 1, c),
-          (r, c - 1),
-          (r, c + 1)
-        ]
-    neighbors r c =
-      filter (\(r', c') -> getHeight r' c' - getHeight r c == 1) $ neighborCoords r c
+    getHeight' = getHeight puzz
+    neighbors' = uphillNeighbors puzz
     go r c state@(TraversalState {visited, summits}) =
-      case (getHeight r c, neighbors r c) of
+      case (getHeight' r c, neighbors' r c) of
         (n, ns) ->
           let newBaseState =
                 ( state
@@ -81,6 +109,10 @@ scorePosition row col (RectangularGrid puzz) =
                   )
                   (filter (`notElem` visited) ns)
 
+pathsToSummit :: Int -> Int -> RectangularGrid Int -> Map.Map Point (Sum Int)
+pathsToSummit summitRow summitCol (RectangularGrid puzz) =
+  undefined
+
 solve1 :: RectangularGrid Int -> Int
 solve1 puzz@(RectangularGrid grid) =
   let nRows = length grid
@@ -94,3 +126,6 @@ solve1 puzz@(RectangularGrid grid) =
                 _ -> mempty
           )
           coords
+
+solve2 :: RectangularGrid Int -> Int
+solve2 _ = 3

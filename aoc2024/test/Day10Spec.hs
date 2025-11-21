@@ -61,7 +61,9 @@ spec =
             it "solves the examples" $ do
               expectParsed parsedBigPuzzle $ \puzz -> solve1 puzz `shouldBe` 36
           describe "part 2" $ 
-            it "rates summits correctly" pending
+            it "rates trailheads correctly" $ do
+              expectParsed parsedSimpleForkingPuzzle $ \puzz -> do
+                pending
 
 simpleTopo :: Text
 simpleTopo =
