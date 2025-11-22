@@ -1,12 +1,13 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Day10 (scorePosition, puzzleParser, solve1) where
+module Day10 (scorePosition, puzzleParser, solve1, solve2) where
 
 import AoC.Data.Grid.Rectangular (Point, RectangularGrid (..), fromLists)
 import AoC.Parser (Parser)
 import Data.Foldable (foldMap')
 import qualified Data.Map.Strict as Map
+import Data.Maybe (fromMaybe)
 import Data.Monoid (Sum (..))
 import qualified Data.Set as Set
 import Data.Vector ((!))
@@ -61,9 +62,8 @@ neighborCoords (RectangularGrid puzz) r c =
       (r, c + 1)
     ]
 
-
 neighbors :: (Point -> Bool) -> RectangularGrid Int -> Int -> Int -> [Point]
-neighbors cond puzz r c =  
+neighbors cond puzz r c =
   filter cond $ neighborCoords puzz r c
 
 uphillNeighbors :: RectangularGrid Int -> Int -> Int -> [Point]
@@ -110,8 +110,16 @@ scorePosition row col puzz =
                   (filter (`notElem` visited) ns)
 
 pathsToSummit :: Int -> Int -> RectangularGrid Int -> Map.Map Point (Sum Int)
-pathsToSummit summitRow summitCol (RectangularGrid puzz) =
+pathsToSummit summitRow summitCol puzz =
   undefined
+  where
+    go acc nextNodes =
+      if Map.null nextNodes
+        then acc
+        else
+          let nextNeighbors = Map.keys nextNodes >>= uncurry (downhillNeighbors puzz)
+              pathsToNextNeighbors = foldMap (\p -> Map.singleton p (Sum 1)) nextNeighbors
+           in undefined
 
 solve1 :: RectangularGrid Int -> Int
 solve1 puzz@(RectangularGrid grid) =
@@ -128,4 +136,25 @@ solve1 puzz@(RectangularGrid grid) =
           coords
 
 solve2 :: RectangularGrid Int -> Int
-solve2 _ = 3
+solve2 puzz@(RectangularGrid grid) =
+  let nRows = length grid
+      nCols = length (grid ! 0)
+      coords = [(r, c) | r <- [0 .. nRows - 1], c <- [0 .. nCols - 1]]
+      allPathCounts =
+        Map.unionsWith (<>) $
+          ( \(r, c) ->
+              case grid ! r ! c of
+                9 -> pathsToSummit r c puzz
+                _ -> mempty
+          )
+            <$> coords
+      countsForTrailheads =
+        getSum $
+          foldMap
+            ( \(r, c) ->
+                case grid ! r ! c of
+                  0 -> fromMaybe 0 $ Map.lookup (r, c) allPathCounts
+                  _ -> 0
+            )
+            coords
+   in countsForTrailheads

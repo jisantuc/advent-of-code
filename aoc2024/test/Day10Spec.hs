@@ -7,7 +7,7 @@ import AoC.Data.Grid.Rectangular (RectangularGrid (..))
 import AoC.Parser.Testing (expectParsed, expectSuccessfulParse)
 import Data.Text (Text)
 import Data.Vector ((!))
-import Day10 (scorePosition, puzzleParser, solve1)
+import Day10 (scorePosition, puzzleParser, solve1, solve2)
 import Debug.Trace (traceShow)
 import Test.Hspec (Spec, describe, it, shouldBe, pending)
 import Text.Megaparsec (parse)
@@ -63,7 +63,7 @@ spec =
           describe "part 2" $ 
             it "rates trailheads correctly" $ do
               expectParsed parsedSimpleForkingPuzzle $ \puzz -> do
-                pending
+                solve2 puzz `shouldBe` 3
 
 simpleTopo :: Text
 simpleTopo =
