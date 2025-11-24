@@ -6,6 +6,7 @@ module Day10 (scorePosition, puzzleParser, solve1, solve2) where
 import AoC.Data.Grid.Rectangular (Point, RectangularGrid (..), fromLists)
 import AoC.Parser (Parser)
 import Data.Foldable (foldMap')
+import Data.Functor ((<&>))
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromMaybe)
 import Data.Monoid (Sum (..))
@@ -110,16 +111,25 @@ scorePosition row col puzz =
                   (filter (`notElem` visited) ns)
 
 pathsToSummit :: Int -> Int -> RectangularGrid Int -> Map.Map Point (Sum Int)
-pathsToSummit summitRow summitCol puzz =
-  undefined
+pathsToSummit summitRow summitCol puzz@(RectangularGrid grid) =
+  case grid ! summitRow ! summitCol of
+    9 -> go (Map.singleton (summitRow, summitCol) (Sum 1)) (downhillNeighbors puzz summitRow summitCol)
+    _ -> Map.empty
   where
-    go acc nextNodes =
-      if Map.null nextNodes
-        then acc
-        else
-          let nextNeighbors = Map.keys nextNodes >>= uncurry (downhillNeighbors puzz)
-              pathsToNextNeighbors = foldMap (\p -> Map.singleton p (Sum 1)) nextNeighbors
-           in undefined
+    go acc [] = acc
+    go acc nodes =
+      -- `acc` is the mapping of locations to number of paths to the summit I started at
+      -- `nodes` is each node at this step of the bfs (neighbors of previously evaluated nodes)
+      -- each node in `nodes` has the sum of the paths to the summit of each of its uphill
+      --   neighbors
+      let nextNeighbors = nodes >>= uncurry (downhillNeighbors puzz)
+          counts =
+            nodes
+              <&> ( \p@(r, c) ->
+                      let uphillNeighbors' = uphillNeighbors puzz r c
+                       in Map.singleton p $ foldMap (fromMaybe (Sum 0) . (`Map.lookup` acc)) uphillNeighbors'
+                  )
+       in go (Map.unions (acc : counts)) nextNeighbors
 
 solve1 :: RectangularGrid Int -> Int
 solve1 puzz@(RectangularGrid grid) =

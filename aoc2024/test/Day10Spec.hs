@@ -9,7 +9,7 @@ import Data.Text (Text)
 import Data.Vector ((!))
 import Day10 (scorePosition, puzzleParser, solve1, solve2)
 import Debug.Trace (traceShow)
-import Test.Hspec (Spec, describe, it, shouldBe, pending)
+import Test.Hspec (Spec, describe, it, shouldBe)
 import Text.Megaparsec (parse)
 import Text.RawString.QQ (r)
 
@@ -21,6 +21,7 @@ spec =
         parsedBigPuzzle = parse puzzleParser "" bigTopo
         parsedSimpleForkingPuzzle = parse puzzleParser "" simpleForkingTopo
         parsedMediumForkingPuzzle = parse puzzleParser "" mediumForkingTopo
+        parsedSuperForkingPuzzle = parse puzzleParser "" superForkingTopo
      in do
           describe "parsing" $ do
             it "parses the simple puzzle" $ do
@@ -62,8 +63,14 @@ spec =
               expectParsed parsedBigPuzzle $ \puzz -> solve1 puzz `shouldBe` 36
           describe "part 2" $ 
             it "rates trailheads correctly" $ do
-              expectParsed parsedSimpleForkingPuzzle $ \puzz -> do
+              expectParsed parsedSimpleForkingPuzzle $ \puzz ->
                 solve2 puzz `shouldBe` 3
+              expectParsed parsedMediumForkingPuzzle $ \puzz ->
+                solve2 puzz `shouldBe` 13
+              expectParsed parsedSuperForkingPuzzle $ \puzz ->
+                solve2 puzz `shouldBe` 227
+              expectParsed parsedBigPuzzle $ \puzz ->
+                solve2 puzz `shouldBe` 81
 
 simpleTopo :: Text
 simpleTopo =
@@ -117,4 +124,13 @@ mediumForkingTopo = [r|..90..9
 765.987
 876....
 987....
+|]
+
+superForkingTopo :: Text
+superForkingTopo = [r|012345
+123456
+234567
+345678
+4.6789
+56789.
 |]
