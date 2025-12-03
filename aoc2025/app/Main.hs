@@ -6,7 +6,7 @@ import AoC.Net.Puzzle (Config (..), fetch)
 import qualified AoC.Parser.CLI as CLI
 import Control.Monad.Reader (ReaderT (runReaderT))
 import qualified Data.ByteString.Char8 as BS
-import Day2 (puzzleParser, solve2)
+import Day3 (puzzleParser, solve1)
 import Options.Applicative
   ( execParser,
     fullDesc,
@@ -32,7 +32,7 @@ main = do
   puzzleText <- runReaderT fetch conf
   case parse puzzleParser "" puzzleText of
     Right puzz -> do
-      print ("Answer: " <> show (solve2 puzz))
+      print ("Answer: " <> show (solve1 puzz))
     Left e -> print $ errorBundlePretty e
   where
     opts =
