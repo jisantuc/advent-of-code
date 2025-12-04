@@ -6,11 +6,11 @@
         "utils": "utils"
       },
       "locked": {
-        "lastModified": 1762359385,
-        "narHash": "sha256-NaK8fbpzVtQ34v766elOGQEVc8iLbfj9jfyVPC/f+4c=",
+        "lastModified": 1764917063,
+        "narHash": "sha256-RY3wJvRAPm8RDryhmjlTQrznJVNdTRDJVA3XhNCJaUo=",
         "owner": "jisantuc",
         "repo": "aoclib",
-        "rev": "a73532ac495235efb35834e581eb60e309723204",
+        "rev": "286ed756d2ba07bd8cee8e384ad949c58b8ed65b",
         "type": "github"
       },
       "original": {
