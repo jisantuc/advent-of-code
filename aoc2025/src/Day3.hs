@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-type-defaults #-}
 
-module Day3 (puzzleParser, solve1) where
+module Day3 (puzzleParser, solve1, solve2) where
 
 import AoC.Parser (Parser)
 import qualified AoC.Parser as Parser
@@ -24,22 +24,25 @@ maxJoltage batteriesToUse bank =
   (read . foldMap' show)
     . foldl'
       ( \acc (j, next) ->
-          case next of
-            xs ->
-              if length xs + 1 >= batteriesToUse
-                -- when there's _more than batteriesToUse digits remaining_ (including j),
-                -- the digit can go in the first slot that it's greater than,
-                -- and all remaining digits are zeroed.
-                then case findIndex (j >) acc of
-                  Just idx -> take idx acc <> [j] <> replicate (batteriesToUse - idx - 1) 0
-                  Nothing -> acc
-                -- when there's _less than or equal to batteriesToUse digits remaining_ (including j),
-                -- I think I have to treat the head of acc as fixed, and find the place to insert the
-                -- value in the tail, but I'm sleepy and I can't work that out right now
-                else undefined
+            case next of
+              xs ->
+                if length xs + 1 >= batteriesToUse
+                  then case findIndex (j >) acc of
+                    Just idx -> take idx acc <> [j] <> replicate (batteriesToUse - idx - 1) 0
+                    Nothing -> acc
+                  else
+                    let canFill = length next + 1
+                        fixedDigits = batteriesToUse - canFill
+                        (fixed, rest) = splitAt fixedDigits acc
+                     in case findIndex (j >) rest of
+                          Just idx -> fixed <> take idx rest <> [j] <> replicate (length rest - idx - 1) 0
+                          Nothing -> acc
       )
       (replicate batteriesToUse 0)
     $ zip bank (drop 1 $ tails bank)
 
 solve1 :: [[Int]] -> Int
 solve1 = getSum . foldMap' (Sum . maxJoltage 2)
+
+solve2 :: [[Int]] -> Int
+solve2 = getSum . foldMap' (Sum . maxJoltage 12)
