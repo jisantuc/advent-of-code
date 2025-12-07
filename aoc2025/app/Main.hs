@@ -6,7 +6,7 @@ import AoC.Net.Puzzle (Config (..), fetch)
 import qualified AoC.Parser.CLI as CLI
 import Control.Monad.Reader (ReaderT (runReaderT))
 import qualified Data.ByteString.Char8 as BS
-import Day4 (puzzleParser, solve2)
+import Day5 (puzzleParser, solve2)
 import Options.Applicative
   ( execParser,
     fullDesc,
